@@ -1,0 +1,39 @@
+{
+  "levels": [
+    {
+      "level": "A1-Foundations",
+      "topics": [
+        {"id": 1, "title": "Articles définis (le, la, les)", "category": "articles"},
+        {"id": 2, "title": "Articles indéfinis (un, une, des)", "category": "articles"},
+        {"id": 3, "title": "Gender of nouns (masculin/féminin)", "category": "nouns"},
+        {"id": 4, "title": "Plural of nouns", "category": "nouns"},
+        {"id": 5, "title": "Subject pronouns (je, tu, il, elle, on, nous, vous, ils, elles)", "category": "pronouns"},
+        {"id": 6, "title": "Être (to be) — present tense", "category": "verbs"},
+        {"id": 7, "title": "Avoir (to have) — present tense", "category": "verbs"},
+        {"id": 8, "title": "Negation (ne...pas)", "category": "sentence-structure"},
+        {"id": 9, "title": "Asking questions (est-ce que, inversion, intonation)", "category": "sentence-structure"},
+        {"id": 10, "title": "-ER verbs present tense (parler, manger, aimer)", "category": "verbs"},
+        {"id": 11, "title": "Adjective agreement (gender & number)", "category": "adjectives"},
+        {"id": 12, "title": "Adjective placement (before/after noun)", "category": "adjectives"},
+        {"id": 13, "title": "Possessive adjectives (mon, ma, mes, ton, ta, tes...)", "category": "possessives"},
+        {"id": 14, "title": "Prepositions of place (à, en, au, aux, dans, sur, sous)", "category": "prepositions"},
+        {"id": 15, "title": "Numbers 1-100 and telling time", "category": "vocabulary-grammar"},
+        {"id": 16, "title": "-IR verbs present tense (finir, choisir)", "category": "verbs"},
+        {"id": 17, "title": "-RE verbs present tense (vendre, attendre)", "category": "verbs"},
+        {"id": 18, "title": "Aller (to go) + near future (futur proche)", "category": "verbs"},
+        {"id": 19, "title": "Faire (to do/make) — present tense & expressions", "category": "verbs"},
+        {"id": 20, "title": "Partitive articles (du, de la, de l', des)", "category": "articles"},
+        {"id": 21, "title": "C'est vs Il est", "category": "sentence-structure"},
+        {"id": 22, "title": "Demonstrative adjectives (ce, cet, cette, ces)", "category": "adjectives"},
+        {"id": 23, "title": "Direct object pronouns (le, la, les)", "category": "pronouns"},
+        {"id": 24, "title": "Indirect object pronouns (lui, leur)", "category": "pronouns"},
+        {"id": 25, "title": "Passé composé with avoir", "category": "past-tense"},
+        {"id": 26, "title": "Passé composé with être (DR MRS VANDERTRAMP)", "category": "past-tense"},
+        {"id": 27, "title": "Passé composé — agreement rules", "category": "past-tense"},
+        {"id": 28, "title": "Imparfait (imperfect) — formation", "category": "past-tense"},
+        {"id": 29, "title": "Passé composé vs Imparfait — when to use which", "category": "past-tense"},
+        {"id": 30, "title": "Reflexive verbs (se lever, se coucher)", "category": "verbs"}
+      ]
+    }
+  ]
+}

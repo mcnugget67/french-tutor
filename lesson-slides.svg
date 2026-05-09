@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>French Tutor — Articles</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1a2e;--card:#16213e;--blue:#4a7fc4;--white:#e8e8e8;--red:#c44a4a;
+  --french:#7eb8ff;--english:#b0b0b0;--accent:#f0c040;--radius:14px;
+}
+html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);-webkit-tap-highlight-color:transparent}
+#app{height:100%;display:flex;flex-direction:column}
+
+.nav-btn{position:fixed;top:50%;transform:translateY(-50%);z-index:20;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:2rem;width:48px;height:80px;cursor:pointer;border-radius:var(--radius);backdrop-filter:blur(4px);transition:.2s}
+.nav-btn:hover{background:rgba(255,255,255,.18)}
+.nav-btn:active{scale:.92}
+#prevBtn{left:6px;border-radius:0 var(--radius) var(--radius) 0}
+#nextBtn{right:6px;border-radius:var(--radius) 0 0 var(--radius)}
+@media(max-width:600px){.nav-btn{width:36px;height:60px;font-size:1.4rem}}
+
+.slides-wrapper{flex:1;position:relative;overflow:hidden}
+.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 56px;opacity:0;transform:translateX(60px);transition:opacity .45s,transform .45s;pointer-events:none;overflow-y:auto}
+.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
+.slide.exit-left{opacity:0;transform:translateX(-60px)}
+.slide.exit-right{opacity:0;transform:translateX(60px)}
+
+.slide-inner{max-width:560px;width:100%;text-align:center}
+h1{font-size:clamp(1.6rem,5vw,2.4rem);margin-bottom:8px;background:linear-gradient(135deg,var(--blue),var(--white),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+h2{font-size:clamp(1.2rem,4vw,1.7rem);color:var(--french);margin-bottom:6px}
+.subtitle{font-size:clamp(1rem,3.5vw,1.3rem);color:var(--english);margin-bottom:18px;font-style:italic}
+.tag{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.85rem;margin-bottom:14px;font-weight:600}
+.tag.masc{background:rgba(74,127,196,.25);color:var(--blue)}
+.tag.fem{background:rgba(196,74,74,.25);color:var(--red)}
+.tag.plural{background:rgba(240,192,64,.25);color:var(--accent)}
+.tag.elision{background:rgba(126,184,255,.18);color:var(--french)}
+.tag.rule{background:rgba(240,192,64,.18);color:var(--accent)}
+
+.ex{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0;flex-wrap:wrap}
+.fr{font-size:clamp(1.15rem,3.8vw,1.45rem);color:var(--french);font-weight:600}
+.en{font-size:clamp(.95rem,3vw,1.1rem);color:var(--english);font-style:italic}
+.arrow-sep{color:#555;font-size:1rem}
+
+.speak{background:none;border:2px solid rgba(126,184,255,.3);color:var(--french);border-radius:50%;width:36px;height:36px;font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
+.speak:hover{background:rgba(126,184,255,.15);border-color:var(--french)}
+.speak:active{scale:.88}
+.speak.playing{animation:pulse .8s infinite}
+.speak.sm{width:30px;height:30px;font-size:.9rem}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(126,184,255,.4)}50%{box-shadow:0 0 0 8px rgba(126,184,255,0)}}
+
+.play-all{margin-top:18px;padding:10px 22px;background:linear-gradient(135deg,var(--blue),#5a5fcf);color:#fff;border:none;border-radius:30px;font-size:1rem;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+.play-all:hover{filter:brightness(1.15)}
+.play-all:active{scale:.95}
+
+.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 12px;align-items:center;margin:10px 0}
+.cmp .vs{color:#555;font-size:.9rem}
+.divider{width:60px;height:3px;border-radius:3px;margin:16px auto;background:linear-gradient(90deg,var(--blue),var(--white),var(--red))}
+.footer{text-align:center;padding:10px;font-size:.95rem;color:#666;background:rgba(0,0,0,.25);user-select:none}
+.footer .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#444;margin:0 3px;transition:.3s}
+.footer .dot.active{background:var(--french);box-shadow:0 0 6px var(--french)}
+.section-label{font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px}
+
+.slide.active .slide-inner>*{animation:fadeUp .5s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.slide.active .slide-inner>*:nth-child(1){animation-delay:.05s}
+.slide.active .slide-inner>*:nth-child(2){animation-delay:.1s}
+.slide.active .slide-inner>*:nth-child(3){animation-delay:.15s}
+.slide.active .slide-inner>*:nth-child(4){animation-delay:.2s}
+.slide.active .slide-inner>*:nth-child(5){animation-delay:.25s}
+.slide.active .slide-inner>*:nth-child(6){animation-delay:.3s}
+.slide.active .slide-inner>*:nth-child(7){animation-delay:.35s}
+.slide.active .slide-inner>*:nth-child(8){animation-delay:.4s}
+.slide.active .slide-inner>*:nth-child(9){animation-delay:.45s}
+.slide.active .slide-inner>*:nth-child(10){animation-delay:.5s}
+
+.no-speech{position:fixed;top:0;left:0;right:0;padding:10px;background:#c44a4a;color:#fff;text-align:center;font-size:.9rem;z-index:100;display:none}
+</style>
+</head>
+<body>
+<div class="no-speech" id="noSpeech">⚠️ Speech not available — open this file in Safari or Chrome on your device</div>
+<div id="app">
+  <button class="nav-btn" id="prevBtn" aria-label="Previous">&#8249;</button>
+  <button class="nav-btn" id="nextBtn" aria-label="Next">&#8250;</button>
+
+  <div class="slides-wrapper" id="sw">
+
+    <!-- SLIDE 1: Title - Définis -->
+    <div class="slide active" data-fr="Les Articles Définis|le, la, l', les">
+      <div class="slide-inner">
+        <div class="section-label">Topic 1 — Review</div>
+        <h1>Les Articles Définis</h1>
+        <div class="divider"></div>
+        <div class="subtitle">le &nbsp;·&nbsp; la &nbsp;·&nbsp; l' &nbsp;·&nbsp; les</div>
+        <p style="color:var(--english);margin-top:8px">The Definite Articles — "the"</p>
+        <button class="play-all">🔊 Hear it</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: le -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>le</h2>
+        <span class="tag masc">masculin singulier</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="le chat">🔊</button><span class="fr">le chat</span><span class="arrow-sep">→</span><span class="en">the cat</span></div>
+        <div class="ex"><button class="speak" data-text="le livre">🔊</button><span class="fr">le livre</span><span class="arrow-sep">→</span><span class="en">the book</span></div>
+        <div class="ex"><button class="speak" data-text="le soleil">🔊</button><span class="fr">le soleil</span><span class="arrow-sep">→</span><span class="en">the sun</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: la -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>la</h2>
+        <span class="tag fem">féminin singulier</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="la maison">🔊</button><span class="fr">la maison</span><span class="arrow-sep">→</span><span class="en">the house</span></div>
+        <div class="ex"><button class="speak" data-text="la lune">🔊</button><span class="fr">la lune</span><span class="arrow-sep">→</span><span class="en">the moon</span></div>
+        <div class="ex"><button class="speak" data-text="la fleur">🔊</button><span class="fr">la fleur</span><span class="arrow-sep">→</span><span class="en">the flower</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: l' -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>l&rsquo;</h2>
+        <span class="tag elision">élision — before vowel / silent h</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="l'école">🔊</button><span class="fr">l&rsquo;école</span><span class="arrow-sep">→</span><span class="en">the school</span></div>
+        <div class="ex"><button class="speak" data-text="l'homme">🔊</button><span class="fr">l&rsquo;homme</span><span class="arrow-sep">→</span><span class="en">the man</span></div>
+        <div class="ex"><button class="speak" data-text="l'eau">🔊</button><span class="fr">l&rsquo;eau</span><span class="arrow-sep">→</span><span class="en">the water</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: les -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>les</h2>
+        <span class="tag plural">pluriel</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="les enfants">🔊</button><span class="fr">les enfants</span><span class="arrow-sep">→</span><span class="en">the children</span></div>
+        <div class="ex"><button class="speak" data-text="les livres">🔊</button><span class="fr">les livres</span><span class="arrow-sep">→</span><span class="en">the books</span></div>
+        <div class="ex"><button class="speak" data-text="les fleurs">🔊</button><span class="fr">les fleurs</span><span class="arrow-sep">→</span><span class="en">the flowers</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Key Rule -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>📌 Règle importante</h2>
+        <span class="tag rule">Key Rule</span>
+        <div class="divider"></div>
+        <p style="color:var(--english);margin-bottom:14px;line-height:1.5">In French, definite articles are used for <strong style="color:var(--accent)">general statements</strong> — unlike English!</p>
+        <div class="ex"><button class="speak" data-text="J'aime le chocolat">🔊</button><span class="fr">J&rsquo;aime le chocolat</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">= I love chocolate (in general)</span></div>
+        <div style="height:10px"></div>
+        <div class="ex"><button class="speak" data-text="Les chats sont intelligents">🔊</button><span class="fr">Les chats sont intelligents</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">= Cats are smart (in general)</span></div>
+        <div style="height:10px"></div>
+        <div class="ex"><button class="speak" data-text="La musique est belle">🔊</button><span class="fr">La musique est belle</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">= Music is beautiful</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Practice -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>✏️ Pratique</h2>
+        <span class="tag rule">Practice Sentences</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="Le garçon mange la pomme">🔊</button><span class="fr">Le garçon mange la pomme</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">The boy eats the apple</span></div>
+        <div style="height:8px"></div>
+        <div class="ex"><button class="speak" data-text="L'oiseau est dans l'arbre">🔊</button><span class="fr">L&rsquo;oiseau est dans l&rsquo;arbre</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">The bird is in the tree</span></div>
+        <div style="height:8px"></div>
+        <div class="ex"><button class="speak" data-text="Les étoiles brillent dans le ciel">🔊</button><span class="fr">Les étoiles brillent dans le ciel</span></div>
+        <div class="ex" style="margin-top:0"><span class="en">The stars shine in the sky</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Title - Indéfinis -->
+    <div class="slide" data-fr="Les Articles Indéfinis|un, une, des">
+      <div class="slide-inner">
+        <div class="section-label">Topic 2 — Preview</div>
+        <h1>Les Articles Indéfinis</h1>
+        <div class="divider"></div>
+        <div class="subtitle">un &nbsp;·&nbsp; une &nbsp;·&nbsp; des</div>
+        <p style="color:var(--english);margin-top:8px">The Indefinite Articles — "a / an / some"</p>
+        <button class="play-all">🔊 Hear it</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: un -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>un</h2>
+        <span class="tag masc">masculin singulier</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="un chat">🔊</button><span class="fr">un chat</span><span class="arrow-sep">→</span><span class="en">a cat</span></div>
+        <div class="ex"><button class="speak" data-text="un livre">🔊</button><span class="fr">un livre</span><span class="arrow-sep">→</span><span class="en">a book</span></div>
+        <div class="ex"><button class="speak" data-text="un ami">🔊</button><span class="fr">un ami</span><span class="arrow-sep">→</span><span class="en">a friend</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 10: une -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>une</h2>
+        <span class="tag fem">féminin singulier</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="une maison">🔊</button><span class="fr">une maison</span><span class="arrow-sep">→</span><span class="en">a house</span></div>
+        <div class="ex"><button class="speak" data-text="une fleur">🔊</button><span class="fr">une fleur</span><span class="arrow-sep">→</span><span class="en">a flower</span></div>
+        <div class="ex"><button class="speak" data-text="une amie">🔊</button><span class="fr">une amie</span><span class="arrow-sep">→</span><span class="en">a (female) friend</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 11: des -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>des</h2>
+        <span class="tag plural">pluriel — "some"</span>
+        <div class="divider"></div>
+        <div class="ex"><button class="speak" data-text="des livres">🔊</button><span class="fr">des livres</span><span class="arrow-sep">→</span><span class="en">some books</span></div>
+        <div class="ex"><button class="speak" data-text="des enfants">🔊</button><span class="fr">des enfants</span><span class="arrow-sep">→</span><span class="en">some children</span></div>
+        <div class="ex"><button class="speak" data-text="des fleurs">🔊</button><span class="fr">des fleurs</span><span class="arrow-sep">→</span><span class="en">some flowers</span></div>
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+    <!-- SLIDE 12: Comparison -->
+    <div class="slide">
+      <div class="slide-inner">
+        <h2>⚖️ Définis vs Indéfinis</h2>
+        <span class="tag rule">Side by Side</span>
+        <div class="divider"></div>
+        <div class="cmp">
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="le chat">🔊</button><span class="fr" style="font-size:1.1rem">le chat</span></div>
+          <span class="vs">vs</span>
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="un chat">🔊</button><span class="fr" style="font-size:1.1rem">un chat</span></div>
+        </div>
+        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> cat vs <em>a</em> cat</div>
+
+        <div class="cmp">
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="la maison">🔊</button><span class="fr" style="font-size:1.1rem">la maison</span></div>
+          <span class="vs">vs</span>
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="une maison">🔊</button><span class="fr" style="font-size:1.1rem">une maison</span></div>
+        </div>
+        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> house vs <em>a</em> house</div>
+
+        <div class="cmp">
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="les livres">🔊</button><span class="fr" style="font-size:1.1rem">les livres</span></div>
+          <span class="vs">vs</span>
+          <div class="ex" style="margin:0"><button class="speak sm" data-text="des livres">🔊</button><span class="fr" style="font-size:1.1rem">des livres</span></div>
+        </div>
+        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> books vs <em>some</em> books</div>
+
+        <button class="play-all">🔊 Play All</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer" id="footer"></div>
+</div>
+
+<script>
+(function(){
+  // Speech API check
+  var hasSpeech = 'speechSynthesis' in window;
+  if(!hasSpeech) document.getElementById('noSpeech').style.display='block';
+
+  var slides = document.querySelectorAll('.slide');
+  var total = slides.length;
+  var cur = 0;
+  var frVoice = null;
+
+  // Preload French voice
+  function loadVoice(){
+    var voices = speechSynthesis.getVoices();
+    for(var i=0;i<voices.length;i++){
+      if(voices[i].lang.indexOf('fr')===0){ frVoice=voices[i]; break; }
+    }
+  }
+  if(hasSpeech){
+    loadVoice();
+    speechSynthesis.onvoiceschanged = loadVoice;
+  }
+
+  function render(){
+    for(var i=0;i<total;i++){
+      slides[i].classList.remove('active','exit-left','exit-right');
+      if(i===cur) slides[i].classList.add('active');
+      else if(i<cur) slides[i].classList.add('exit-left');
+      else slides[i].classList.add('exit-right');
+    }
+    document.getElementById('prevBtn').style.opacity = cur===0?'.2':'1';
+    document.getElementById('nextBtn').style.opacity = cur===total-1?'.2':'1';
+    var h = '<span style="margin-right:10px;color:#888">'+(cur+1)+' / '+total+'</span>';
+    for(var i=0;i<total;i++) h += '<span class="dot'+(i===cur?' active':'')+'"></span>';
+    document.getElementById('footer').innerHTML = h;
+  }
+  render();
+
+  function go(d){
+    var n = cur + d;
+    if(n<0 || n>=total) return;
+    cur = n;
+    render();
+  }
+
+  // Navigation buttons
+  document.getElementById('prevBtn').addEventListener('click', function(){ go(-1); });
+  document.getElementById('nextBtn').addEventListener('click', function(){ go(1); });
+
+  // Keyboard
+  document.addEventListener('keydown', function(e){
+    if(e.key==='ArrowRight' || e.key==='ArrowDown') go(1);
+    if(e.key==='ArrowLeft' || e.key==='ArrowUp') go(-1);
+  });
+
+  // Swipe
+  var tx=0, ty=0;
+  var sw = document.getElementById('sw');
+  sw.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
+  sw.addEventListener('touchend', function(e){
+    var dx = e.changedTouches[0].clientX - tx;
+    var dy = e.changedTouches[0].clientY - ty;
+    if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>40){
+      dx<0 ? go(1) : go(-1);
+    }
+  }, {passive:true});
+
+  // Speak a single phrase
+  function say(text, btn){
+    if(!hasSpeech) return;
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'fr-FR';
+    u.rate = 0.85;
+    if(frVoice) u.voice = frVoice;
+    if(btn){
+      btn.classList.add('playing');
+      u.onend = function(){ btn.classList.remove('playing'); };
+      u.onerror = function(){ btn.classList.remove('playing'); };
+    }
+    speechSynthesis.speak(u);
+  }
+
+  // Event delegation for all .speak buttons (uses data-text attribute)
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('.speak');
+    if(btn && btn.dataset.text){
+      e.preventDefault();
+      say(btn.dataset.text, btn);
+      return;
+    }
+    var playBtn = e.target.closest('.play-all');
+    if(playBtn){
+      e.preventDefault();
+      playAll(playBtn);
+    }
+  });
+
+  // Play all French text on a slide
+  function playAll(btn){
+    if(!hasSpeech) return;
+    var slide = btn.closest('.slide');
+    var texts = [];
+    var dataFr = slide.getAttribute('data-fr');
+    if(dataFr){
+      texts = dataFr.split('|');
+    } else {
+      var speakBtns = slide.querySelectorAll('.speak[data-text]');
+      for(var i=0;i<speakBtns.length;i++){
+        texts.push(speakBtns[i].dataset.text);
+      }
+    }
+    if(!texts.length) return;
+    speechSynthesis.cancel();
+    var idx = 0;
+    function next(){
+      if(idx >= texts.length) return;
+      var u = new SpeechSynthesisUtterance(texts[idx]);
+      u.lang = 'fr-FR';
+      u.rate = 0.85;
+      if(frVoice) u.voice = frVoice;
+      u.onend = function(){ idx++; setTimeout(next, 400); };
+      u.onerror = function(){ idx++; setTimeout(next, 400); };
+      speechSynthesis.speak(u);
+    }
+    next();
+  }
+
+})();
+</script>
+</body>
+</html>

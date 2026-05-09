@@ -1059,65 +1059,99 @@ function generateQuiz() {
   const ti = APP_STATE.current_topic_index;
   const topic = ti < CURRICULUM.length ? CURRICULUM[ti] : null;
 
-  // Collect cards for quiz
+  // Collect cards for quiz — explicit french/english fields to avoid any confusion
   let quizCards = [];
-  if (topic) {
-    topic.cards.forEach((c, i) => {
-      quizCards.push({ ...c, id: `${topic.id}_${i}`, topic: topic.id, category: topic.category });
+  if (topic && Array.isArray(topic.cards)) {
+    topic.cards.forEach(function(c, i) {
+      quizCards.push({
+        french: String(c.fr || ''),
+        english: String(c.en || ''),
+        id: topic.id + '_' + i,
+        topic: topic.id,
+        category: topic.category
+      });
     });
   }
-  REVIEW_CARDS.forEach(c => {
-    if (!quizCards.find(qc => qc.fr === c.french)) {
-      quizCards.push({ fr: c.french, en: c.english, id: c.id, topic: c.topic, category: c.category });
+  REVIEW_CARDS.forEach(function(c) {
+    var isDupe = quizCards.some(function(qc) { return qc.french === c.french; });
+    if (!isDupe) {
+      quizCards.push({
+        french: String(c.french || ''),
+        english: String(c.english || ''),
+        id: c.id,
+        topic: c.topic,
+        category: c.category
+      });
     }
   });
 
+  // Filter out any cards missing data
+  quizCards = quizCards.filter(function(c) { return c.french && c.english; });
+
   // Shuffle
-  quizCards = quizCards.sort(() => Math.random() - 0.5);
+  quizCards = quizCards.sort(function() { return Math.random() - 0.5; });
+
+  if (quizCards.length === 0) return;
 
   // Generate 8 questions (mix of types)
-  const numQ = Math.min(8, Math.max(5, quizCards.length));
-  const types = ['mcq', 'fill', 'translate', 'mcq'];
+  var numQ = Math.min(8, Math.max(5, quizCards.length));
+  var types = ['mcq_en2fr', 'fill', 'mcq_fr2en', 'translate'];
 
-  for (let i = 0; i < numQ; i++) {
-    const card = quizCards[i % quizCards.length];
-    const type = types[i % types.length];
+  for (var i = 0; i < numQ; i++) {
+    var card = quizCards[i % quizCards.length];
+    var type = types[i % types.length];
 
-    if (type === 'mcq') {
-      // MCQ: English → French
-      const correct = card.fr;
-      const distractors = quizCards
-        .filter(c => c.fr !== correct)
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3)
-        .map(c => c.fr);
-      const opts = [correct, ...distractors].sort(() => Math.random() - 0.5);
+    if (type === 'mcq_en2fr') {
+      // MCQ: Show English question → pick the FRENCH answer
+      var correctFr = card.french;
+      var distractorsFr = [];
+      var shuffled = quizCards.slice().sort(function() { return Math.random() - 0.5; });
+      for (var j = 0; j < shuffled.length && distractorsFr.length < 3; j++) {
+        if (shuffled[j].french !== correctFr) {
+          distractorsFr.push(shuffled[j].french);
+        }
+      }
+      var optsFr = [correctFr].concat(distractorsFr).sort(function() { return Math.random() - 0.5; });
       QUIZ_DATA.push({
-        type: 'mcq', question: `What is "${card.en}" in French?`,
-        options: opts, answer: correct, cardId: card.id
+        type: 'mcq', question: 'What is "' + card.english + '" in French?',
+        options: optsFr, answer: correctFr, cardId: card.id
+      });
+    } else if (type === 'mcq_fr2en') {
+      // MCQ: Show French question → pick the ENGLISH answer
+      var correctEn = card.english;
+      var distractorsEn = [];
+      var shuffled2 = quizCards.slice().sort(function() { return Math.random() - 0.5; });
+      for (var k = 0; k < shuffled2.length && distractorsEn.length < 3; k++) {
+        if (shuffled2[k].english !== correctEn) {
+          distractorsEn.push(shuffled2[k].english);
+        }
+      }
+      var optsEn = [correctEn].concat(distractorsEn).sort(function() { return Math.random() - 0.5; });
+      QUIZ_DATA.push({
+        type: 'mcq', question: 'What does "' + card.french + '" mean in English?',
+        options: optsEn, answer: correctEn, cardId: card.id
       });
     } else if (type === 'fill') {
-      // Fill in blank — extract first word
-      const parts = card.fr.split(' ');
+      // Fill in blank — extract article (first word)
+      var parts = card.french.split(' ');
       if (parts.length >= 2) {
-        const blank = parts[0];
-        const rest = parts.slice(1).join(' ');
+        var blank = parts[0];
+        var rest = parts.slice(1).join(' ');
         QUIZ_DATA.push({
-          type: 'fill', question: `Fill in: ___ ${rest}`,
-          hint: card.en, answer: blank.toLowerCase(), cardId: card.id
+          type: 'fill', question: 'Fill in the article: ___ ' + rest,
+          hint: card.english, answer: blank.toLowerCase(), cardId: card.id
         });
       } else {
-        // Fallback to translate
         QUIZ_DATA.push({
-          type: 'translate', question: `Translate to French: "${card.en}"`,
-          answer: card.fr.toLowerCase(), cardId: card.id
+          type: 'translate', question: 'Translate to French: "' + card.english + '"',
+          answer: card.french.toLowerCase(), cardId: card.id
         });
       }
     } else {
       // Translate English → French
       QUIZ_DATA.push({
-        type: 'translate', question: `Translate to French: "${card.en}"`,
-        answer: card.fr.toLowerCase(), cardId: card.id
+        type: 'translate', question: 'Translate to French: "' + card.english + '"',
+        answer: card.french.toLowerCase(), cardId: card.id
       });
     }
   }

@@ -1,0 +1,15 @@
+{
+  "current_level": "A1",
+  "lesson_number": 2,
+  "lessons_completed": [
+    {"topic": "Articles définis (le, la, les)", "position": 0, "date": "2026-05-08"},
+    {"topic": "Articles définis (le, la, les)", "position": 1, "date": "2026-05-09"}
+  ],
+  "quiz_number": 0,
+  "quiz_results": [],
+  "quiz_difficulty": "mcq",
+  "timezone": "Europe/Paris",
+  "home_base": "Malaysia",
+  "current_location": "France",
+  "notes": "User is a beginner. Progressive grammar curriculum. Quizzes start MCQ, progress to translation and fill-in-the-blank, then mix."
+}
