@@ -1,407 +1,1404 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>French Tutor — Articles</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>French Tutor 🇫🇷</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#1a1a2e;--card:#16213e;--blue:#4a7fc4;--white:#e8e8e8;--red:#c44a4a;
-  --french:#7eb8ff;--english:#b0b0b0;--accent:#f0c040;--radius:14px;
+:root {
+  --bg: #1a1a2e;
+  --card: #16213e;
+  --card-alt: #1a2744;
+  --blue: #4a7fc4;
+  --white: #e8e8e8;
+  --red: #c44a4a;
+  --gold: #f0c040;
+  --masc: #4a7fc4;
+  --fem: #c44a4a;
+  --text: #e8e8e8;
+  --text-dim: #8899aa;
+  --success: #4caf50;
+  --error: #e74c3c;
+  --radius: 12px;
+  --safe-top: env(safe-area-inset-top, 20px);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
-html,body{height:100%;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--white);-webkit-tap-highlight-color:transparent}
-#app{height:100%;display:flex;flex-direction:column}
-
-.nav-btn{position:fixed;top:50%;transform:translateY(-50%);z-index:20;background:rgba(255,255,255,.08);border:none;color:#fff;font-size:2rem;width:48px;height:80px;cursor:pointer;border-radius:var(--radius);backdrop-filter:blur(4px);transition:.2s}
-.nav-btn:hover{background:rgba(255,255,255,.18)}
-.nav-btn:active{scale:.92}
-#prevBtn{left:6px;border-radius:0 var(--radius) var(--radius) 0}
-#nextBtn{right:6px;border-radius:var(--radius) 0 0 var(--radius)}
-@media(max-width:600px){.nav-btn{width:36px;height:60px;font-size:1.4rem}}
-
-.slides-wrapper{flex:1;position:relative;overflow:hidden}
-.slide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 56px;opacity:0;transform:translateX(60px);transition:opacity .45s,transform .45s;pointer-events:none;overflow-y:auto}
-.slide.active{opacity:1;transform:translateX(0);pointer-events:auto}
-.slide.exit-left{opacity:0;transform:translateX(-60px)}
-.slide.exit-right{opacity:0;transform:translateX(60px)}
-
-.slide-inner{max-width:560px;width:100%;text-align:center}
-h1{font-size:clamp(1.6rem,5vw,2.4rem);margin-bottom:8px;background:linear-gradient(135deg,var(--blue),var(--white),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-h2{font-size:clamp(1.2rem,4vw,1.7rem);color:var(--french);margin-bottom:6px}
-.subtitle{font-size:clamp(1rem,3.5vw,1.3rem);color:var(--english);margin-bottom:18px;font-style:italic}
-.tag{display:inline-block;padding:4px 14px;border-radius:20px;font-size:.85rem;margin-bottom:14px;font-weight:600}
-.tag.masc{background:rgba(74,127,196,.25);color:var(--blue)}
-.tag.fem{background:rgba(196,74,74,.25);color:var(--red)}
-.tag.plural{background:rgba(240,192,64,.25);color:var(--accent)}
-.tag.elision{background:rgba(126,184,255,.18);color:var(--french)}
-.tag.rule{background:rgba(240,192,64,.18);color:var(--accent)}
-
-.ex{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0;flex-wrap:wrap}
-.fr{font-size:clamp(1.15rem,3.8vw,1.45rem);color:var(--french);font-weight:600}
-.en{font-size:clamp(.95rem,3vw,1.1rem);color:var(--english);font-style:italic}
-.arrow-sep{color:#555;font-size:1rem}
-
-.speak{background:none;border:2px solid rgba(126,184,255,.3);color:var(--french);border-radius:50%;width:36px;height:36px;font-size:1.1rem;cursor:pointer;flex-shrink:0;transition:.2s;display:inline-flex;align-items:center;justify-content:center}
-.speak:hover{background:rgba(126,184,255,.15);border-color:var(--french)}
-.speak:active{scale:.88}
-.speak.playing{animation:pulse .8s infinite}
-.speak.sm{width:30px;height:30px;font-size:.9rem}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(126,184,255,.4)}50%{box-shadow:0 0 0 8px rgba(126,184,255,0)}}
-
-.play-all{margin-top:18px;padding:10px 22px;background:linear-gradient(135deg,var(--blue),#5a5fcf);color:#fff;border:none;border-radius:30px;font-size:1rem;cursor:pointer;transition:.2s;display:inline-flex;align-items:center;gap:8px}
-.play-all:hover{filter:brightness(1.15)}
-.play-all:active{scale:.95}
-
-.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:6px 12px;align-items:center;margin:10px 0}
-.cmp .vs{color:#555;font-size:.9rem}
-.divider{width:60px;height:3px;border-radius:3px;margin:16px auto;background:linear-gradient(90deg,var(--blue),var(--white),var(--red))}
-.footer{text-align:center;padding:10px;font-size:.95rem;color:#666;background:rgba(0,0,0,.25);user-select:none}
-.footer .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#444;margin:0 3px;transition:.3s}
-.footer .dot.active{background:var(--french);box-shadow:0 0 6px var(--french)}
-.section-label{font-size:.8rem;letter-spacing:2px;text-transform:uppercase;color:#666;margin-bottom:6px}
-
-.slide.active .slide-inner>*{animation:fadeUp .5s both}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.slide.active .slide-inner>*:nth-child(1){animation-delay:.05s}
-.slide.active .slide-inner>*:nth-child(2){animation-delay:.1s}
-.slide.active .slide-inner>*:nth-child(3){animation-delay:.15s}
-.slide.active .slide-inner>*:nth-child(4){animation-delay:.2s}
-.slide.active .slide-inner>*:nth-child(5){animation-delay:.25s}
-.slide.active .slide-inner>*:nth-child(6){animation-delay:.3s}
-.slide.active .slide-inner>*:nth-child(7){animation-delay:.35s}
-.slide.active .slide-inner>*:nth-child(8){animation-delay:.4s}
-.slide.active .slide-inner>*:nth-child(9){animation-delay:.45s}
-.slide.active .slide-inner>*:nth-child(10){animation-delay:.5s}
-
-.no-speech{position:fixed;top:0;left:0;right:0;padding:10px;background:#c44a4a;color:#fff;text-align:center;font-size:.9rem;z-index:100;display:none}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  padding-bottom: calc(40px + var(--safe-bottom));
+}
+header {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(135deg, #0f1527, #16213e);
+  padding: calc(var(--safe-top) + 8px) 16px 10px;
+  border-bottom: 2px solid var(--blue);
+  backdrop-filter: blur(10px);
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.header-title { font-size: 1.1em; font-weight: 700; }
+.header-title .flag { font-size: 1.3em; }
+.header-stats { display: flex; gap: 14px; font-size: 0.82em; color: var(--text-dim); flex-wrap: wrap; }
+.header-stats span { white-space: nowrap; }
+.stat-val { color: var(--gold); font-weight: 600; }
+.gear-btn { background: none; border: none; color: var(--text-dim); font-size: 1.4em; cursor: pointer; padding: 4px; }
+main { max-width: 600px; margin: 0 auto; padding: 16px; }
+.section-header {
+  font-size: 1.3em; font-weight: 700; margin: 24px 0 12px;
+  padding-bottom: 6px; border-bottom: 2px solid var(--gold);
+  display: flex; align-items: center; gap: 8px;
+}
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  border-left: 4px solid var(--blue);
+}
+.card.fem { border-left-color: var(--fem); }
+.card.rule { border-left-color: var(--gold); background: linear-gradient(135deg, #1e2a45, #16213e); }
+.card.practice { border-left-color: var(--success); }
+.card-label {
+  font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.french {
+  font-size: 1.25em; font-weight: 600; margin-bottom: 4px;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.english { color: var(--text-dim); font-size: 0.95em; }
+.speak-btn {
+  background: none; border: none; font-size: 1.1em; cursor: pointer;
+  padding: 4px 6px; border-radius: 6px; color: var(--blue); flex-shrink: 0;
+}
+.speak-btn:active { background: rgba(74,127,196,0.2); }
+.example-row {
+  display: flex; align-items: center; gap: 8px; padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.example-row:last-child { border-bottom: none; }
+.example-fr { font-weight: 600; flex: 1; font-size: 1.05em; }
+.example-en { color: var(--text-dim); font-size: 0.9em; flex: 1; }
+.masc { color: var(--masc); }
+.fem { color: var(--fem); }
+.gold { color: var(--gold); }
+.rule-box {
+  background: rgba(240,192,64,0.08);
+  border: 1px solid rgba(240,192,64,0.3);
+  border-radius: var(--radius);
+  padding: 14px; margin: 12px 0;
+}
+.rule-box .rule-title { color: var(--gold); font-weight: 700; margin-bottom: 4px; font-size: 0.9em; }
+/* Flash cards */
+.flash-card {
+  background: var(--card); border-radius: var(--radius); padding: 20px;
+  margin-bottom: 12px; text-align: center; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;
+  min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+}
+.flash-card.revealed { background: var(--card-alt); }
+.flash-card .fc-french { font-size: 1.4em; font-weight: 700; margin-bottom: 8px; }
+.flash-card .fc-english { color: var(--gold); font-size: 1.1em; display: none; margin-top: 8px; }
+.flash-card.revealed .fc-english { display: block; }
+.flash-card .fc-hint { color: var(--text-dim); font-size: 0.8em; margin-top: 8px; }
+.flash-card.revealed .fc-hint { display: none; }
+.rate-btns { display: flex; gap: 8px; margin-top: 10px; display: none; }
+.flash-card.revealed + .rate-btns, .rate-btns.show { display: flex !important; }
+.rate-btn {
+  flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 1em;
+  cursor: pointer; font-weight: 600; color: white;
+}
+.rate-btn.hard { background: var(--error); }
+.rate-btn.ok { background: var(--blue); }
+.rate-btn.easy { background: var(--success); }
+/* Quiz */
+.quiz-q {
+  background: var(--card); border-radius: var(--radius); padding: 16px;
+  margin-bottom: 14px; border-left: 4px solid var(--blue);
+}
+.quiz-q .q-num { color: var(--gold); font-weight: 700; font-size: 0.85em; margin-bottom: 6px; }
+.quiz-q .q-text { font-size: 1.05em; margin-bottom: 12px; font-weight: 500; }
+.mcq-opts { display: flex; flex-direction: column; gap: 8px; }
+.mcq-opt {
+  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 1em;
+  transition: all 0.2s; color: var(--text);
+}
+.mcq-opt:active, .mcq-opt.selected { border-color: var(--blue); background: rgba(74,127,196,0.15); }
+.mcq-opt.correct { border-color: var(--success); background: rgba(76,175,80,0.15); color: var(--success); }
+.mcq-opt.wrong { border-color: var(--error); background: rgba(231,76,60,0.15); color: var(--error); }
+.fill-input {
+  width: 100%; padding: 12px; border-radius: 8px; font-size: 1.05em;
+  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
+  color: var(--text); outline: none;
+}
+.fill-input:focus { border-color: var(--blue); }
+.fill-input.correct { border-color: var(--success); }
+.fill-input.wrong { border-color: var(--error); }
+.correction { color: var(--success); font-size: 0.9em; margin-top: 6px; display: none; }
+.btn-primary {
+  width: 100%; padding: 16px; border: none; border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--blue), #3a6fb4);
+  color: white; font-size: 1.1em; font-weight: 700; cursor: pointer;
+  margin-top: 16px; transition: transform 0.1s;
+}
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-secondary {
+  width: 100%; padding: 14px; border: 2px solid var(--blue); border-radius: var(--radius);
+  background: transparent; color: var(--blue); font-size: 1em; font-weight: 600;
+  cursor: pointer; margin-top: 10px;
+}
+/* Results */
+.results-card {
+  background: var(--card); border-radius: var(--radius); padding: 20px;
+  text-align: center; border: 2px solid var(--gold); margin-bottom: 16px;
+}
+.results-score { font-size: 2.5em; font-weight: 800; color: var(--gold); }
+.results-label { color: var(--text-dim); font-size: 0.9em; margin-top: 4px; }
+.results-details { text-align: left; margin-top: 16px; }
+.results-details p { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+/* Settings panel */
+.settings-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
+  display: none; justify-content: center; align-items: flex-end;
+}
+.settings-overlay.open { display: flex; }
+.settings-panel {
+  background: var(--card); border-radius: 16px 16px 0 0; padding: 24px 16px calc(16px + var(--safe-bottom));
+  width: 100%; max-width: 600px; max-height: 70vh; overflow-y: auto;
+}
+.settings-panel h3 { margin-bottom: 16px; }
+.settings-panel button { margin-bottom: 8px; }
+/* Done state */
+.done-card {
+  background: var(--card); border-radius: var(--radius); padding: 40px 20px;
+  text-align: center; margin: 40px 0;
+}
+.done-card .done-emoji { font-size: 3em; margin-bottom: 12px; }
+.done-card .done-text { font-size: 1.2em; color: var(--text-dim); }
+/* Animations */
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeIn 0.4s ease-out; }
+.hidden { display: none !important; }
 </style>
 </head>
 <body>
-<div class="no-speech" id="noSpeech">⚠️ Speech not available — open this file in Safari or Chrome on your device</div>
-<div id="app">
-  <button class="nav-btn" id="prevBtn" aria-label="Previous">&#8249;</button>
-  <button class="nav-btn" id="nextBtn" aria-label="Next">&#8250;</button>
 
-  <div class="slides-wrapper" id="sw">
-
-    <!-- SLIDE 1: Title - Définis -->
-    <div class="slide active" data-fr="Les Articles Définis|le, la, l', les">
-      <div class="slide-inner">
-        <div class="section-label">Topic 1 — Review</div>
-        <h1>Les Articles Définis</h1>
-        <div class="divider"></div>
-        <div class="subtitle">le &nbsp;·&nbsp; la &nbsp;·&nbsp; l' &nbsp;·&nbsp; les</div>
-        <p style="color:var(--english);margin-top:8px">The Definite Articles — "the"</p>
-        <button class="play-all">🔊 Hear it</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 2: le -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>le</h2>
-        <span class="tag masc">masculin singulier</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="le chat">🔊</button><span class="fr">le chat</span><span class="arrow-sep">→</span><span class="en">the cat</span></div>
-        <div class="ex"><button class="speak" data-text="le livre">🔊</button><span class="fr">le livre</span><span class="arrow-sep">→</span><span class="en">the book</span></div>
-        <div class="ex"><button class="speak" data-text="le soleil">🔊</button><span class="fr">le soleil</span><span class="arrow-sep">→</span><span class="en">the sun</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 3: la -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>la</h2>
-        <span class="tag fem">féminin singulier</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="la maison">🔊</button><span class="fr">la maison</span><span class="arrow-sep">→</span><span class="en">the house</span></div>
-        <div class="ex"><button class="speak" data-text="la lune">🔊</button><span class="fr">la lune</span><span class="arrow-sep">→</span><span class="en">the moon</span></div>
-        <div class="ex"><button class="speak" data-text="la fleur">🔊</button><span class="fr">la fleur</span><span class="arrow-sep">→</span><span class="en">the flower</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 4: l' -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>l&rsquo;</h2>
-        <span class="tag elision">élision — before vowel / silent h</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="l'école">🔊</button><span class="fr">l&rsquo;école</span><span class="arrow-sep">→</span><span class="en">the school</span></div>
-        <div class="ex"><button class="speak" data-text="l'homme">🔊</button><span class="fr">l&rsquo;homme</span><span class="arrow-sep">→</span><span class="en">the man</span></div>
-        <div class="ex"><button class="speak" data-text="l'eau">🔊</button><span class="fr">l&rsquo;eau</span><span class="arrow-sep">→</span><span class="en">the water</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 5: les -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>les</h2>
-        <span class="tag plural">pluriel</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="les enfants">🔊</button><span class="fr">les enfants</span><span class="arrow-sep">→</span><span class="en">the children</span></div>
-        <div class="ex"><button class="speak" data-text="les livres">🔊</button><span class="fr">les livres</span><span class="arrow-sep">→</span><span class="en">the books</span></div>
-        <div class="ex"><button class="speak" data-text="les fleurs">🔊</button><span class="fr">les fleurs</span><span class="arrow-sep">→</span><span class="en">the flowers</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 6: Key Rule -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>📌 Règle importante</h2>
-        <span class="tag rule">Key Rule</span>
-        <div class="divider"></div>
-        <p style="color:var(--english);margin-bottom:14px;line-height:1.5">In French, definite articles are used for <strong style="color:var(--accent)">general statements</strong> — unlike English!</p>
-        <div class="ex"><button class="speak" data-text="J'aime le chocolat">🔊</button><span class="fr">J&rsquo;aime le chocolat</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">= I love chocolate (in general)</span></div>
-        <div style="height:10px"></div>
-        <div class="ex"><button class="speak" data-text="Les chats sont intelligents">🔊</button><span class="fr">Les chats sont intelligents</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">= Cats are smart (in general)</span></div>
-        <div style="height:10px"></div>
-        <div class="ex"><button class="speak" data-text="La musique est belle">🔊</button><span class="fr">La musique est belle</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">= Music is beautiful</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 7: Practice -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>✏️ Pratique</h2>
-        <span class="tag rule">Practice Sentences</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="Le garçon mange la pomme">🔊</button><span class="fr">Le garçon mange la pomme</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">The boy eats the apple</span></div>
-        <div style="height:8px"></div>
-        <div class="ex"><button class="speak" data-text="L'oiseau est dans l'arbre">🔊</button><span class="fr">L&rsquo;oiseau est dans l&rsquo;arbre</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">The bird is in the tree</span></div>
-        <div style="height:8px"></div>
-        <div class="ex"><button class="speak" data-text="Les étoiles brillent dans le ciel">🔊</button><span class="fr">Les étoiles brillent dans le ciel</span></div>
-        <div class="ex" style="margin-top:0"><span class="en">The stars shine in the sky</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 8: Title - Indéfinis -->
-    <div class="slide" data-fr="Les Articles Indéfinis|un, une, des">
-      <div class="slide-inner">
-        <div class="section-label">Topic 2 — Preview</div>
-        <h1>Les Articles Indéfinis</h1>
-        <div class="divider"></div>
-        <div class="subtitle">un &nbsp;·&nbsp; une &nbsp;·&nbsp; des</div>
-        <p style="color:var(--english);margin-top:8px">The Indefinite Articles — "a / an / some"</p>
-        <button class="play-all">🔊 Hear it</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 9: un -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>un</h2>
-        <span class="tag masc">masculin singulier</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="un chat">🔊</button><span class="fr">un chat</span><span class="arrow-sep">→</span><span class="en">a cat</span></div>
-        <div class="ex"><button class="speak" data-text="un livre">🔊</button><span class="fr">un livre</span><span class="arrow-sep">→</span><span class="en">a book</span></div>
-        <div class="ex"><button class="speak" data-text="un ami">🔊</button><span class="fr">un ami</span><span class="arrow-sep">→</span><span class="en">a friend</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 10: une -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>une</h2>
-        <span class="tag fem">féminin singulier</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="une maison">🔊</button><span class="fr">une maison</span><span class="arrow-sep">→</span><span class="en">a house</span></div>
-        <div class="ex"><button class="speak" data-text="une fleur">🔊</button><span class="fr">une fleur</span><span class="arrow-sep">→</span><span class="en">a flower</span></div>
-        <div class="ex"><button class="speak" data-text="une amie">🔊</button><span class="fr">une amie</span><span class="arrow-sep">→</span><span class="en">a (female) friend</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 11: des -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>des</h2>
-        <span class="tag plural">pluriel — "some"</span>
-        <div class="divider"></div>
-        <div class="ex"><button class="speak" data-text="des livres">🔊</button><span class="fr">des livres</span><span class="arrow-sep">→</span><span class="en">some books</span></div>
-        <div class="ex"><button class="speak" data-text="des enfants">🔊</button><span class="fr">des enfants</span><span class="arrow-sep">→</span><span class="en">some children</span></div>
-        <div class="ex"><button class="speak" data-text="des fleurs">🔊</button><span class="fr">des fleurs</span><span class="arrow-sep">→</span><span class="en">some flowers</span></div>
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
-    <!-- SLIDE 12: Comparison -->
-    <div class="slide">
-      <div class="slide-inner">
-        <h2>⚖️ Définis vs Indéfinis</h2>
-        <span class="tag rule">Side by Side</span>
-        <div class="divider"></div>
-        <div class="cmp">
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="le chat">🔊</button><span class="fr" style="font-size:1.1rem">le chat</span></div>
-          <span class="vs">vs</span>
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="un chat">🔊</button><span class="fr" style="font-size:1.1rem">un chat</span></div>
-        </div>
-        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> cat vs <em>a</em> cat</div>
-
-        <div class="cmp">
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="la maison">🔊</button><span class="fr" style="font-size:1.1rem">la maison</span></div>
-          <span class="vs">vs</span>
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="une maison">🔊</button><span class="fr" style="font-size:1.1rem">une maison</span></div>
-        </div>
-        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> house vs <em>a</em> house</div>
-
-        <div class="cmp">
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="les livres">🔊</button><span class="fr" style="font-size:1.1rem">les livres</span></div>
-          <span class="vs">vs</span>
-          <div class="ex" style="margin:0"><button class="speak sm" data-text="des livres">🔊</button><span class="fr" style="font-size:1.1rem">des livres</span></div>
-        </div>
-        <div style="color:var(--english);font-size:.9rem;margin-bottom:12px"><em>the</em> books vs <em>some</em> books</div>
-
-        <button class="play-all">🔊 Play All</button>
-      </div>
-    </div>
-
+<header>
+  <div class="header-top">
+    <div class="header-title"><span class="flag">🇫🇷</span> <span id="headerTopic">French Tutor</span></div>
+    <button class="gear-btn" id="gearBtn">⚙️</button>
   </div>
+  <div class="header-stats">
+    <span>📅 Jour <span class="stat-val" id="dayNum">1</span></span>
+    <span>🔥 <span class="stat-val" id="streak">0</span></span>
+    <span>📊 <span class="stat-val" id="accuracy">--%</span></span>
+  </div>
+</header>
 
-  <div class="footer" id="footer"></div>
+<main id="mainContent"></main>
+
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-panel">
+    <h3>⚙️ Settings</h3>
+    <button class="btn-secondary" id="exportBtn">📤 Export Data (JSON)</button>
+    <button class="btn-secondary" id="importBtn">📥 Import Data</button>
+    <input type="file" id="importFile" accept=".json" class="hidden">
+    <button class="btn-secondary" id="resetBtn" style="border-color:var(--red);color:var(--red);">🗑️ Reset All Progress</button>
+    <button class="btn-primary" id="closeSettings" style="margin-top:20px;">Close</button>
+  </div>
 </div>
 
 <script>
-(function(){
-  // Speech API check
-  var hasSpeech = 'speechSynthesis' in window;
-  if(!hasSpeech) document.getElementById('noSpeech').style.display='block';
+// ═══════════════════════════════════════
+// CURRICULUM DATA
+// ═══════════════════════════════════════
+const CURRICULUM = [
+  {
+    id: "articles-definis", name: "Articles définis", category: "articles",
+    positions: [
+      { // INTRO
+        title: "Les articles définis — le, la, l', les",
+        subtitle: "French has 4 definite articles (English only has \"the\")",
+        rules: [
+          { text: "<span class='masc'>le</span> = masculine singular", examples: [
+            {fr:"le chat",en:"the cat"},{fr:"le livre",en:"the book"},{fr:"le soleil",en:"the sun"},{fr:"le garçon",en:"the boy"}
+          ]},
+          { text: "<span class='fem'>la</span> = feminine singular", examples: [
+            {fr:"la maison",en:"the house"},{fr:"la lune",en:"the moon"},{fr:"la fleur",en:"the flower"},{fr:"la fille",en:"the girl"}
+          ]},
+          { text: "<span class='gold'>l'</span> = before vowel or silent h", examples: [
+            {fr:"l'école",en:"the school"},{fr:"l'homme",en:"the man"},{fr:"l'eau",en:"the water"},{fr:"l'arbre",en:"the tree"}
+          ]},
+          { text: "<span class='gold'>les</span> = all plurals", examples: [
+            {fr:"les enfants",en:"the children"},{fr:"les livres",en:"the books"},{fr:"les fleurs",en:"the flowers"}
+          ]}
+        ],
+        keyRule: "French uses articles for general statements: <em>J'aime le chocolat</em> = I love chocolate (no article in English!)"
+      },
+      { // DEEP DIVE
+        title: "Articles définis — Deeper Look",
+        subtitle: "Common mistakes, tips, and more examples",
+        rules: [
+          { text: "⚠️ Common mistake: using <span class='masc'>le</span> with feminine nouns", examples: [
+            {fr:"la voiture",en:"the car (feminine!)"},{fr:"la rue",en:"the street (feminine!)"}
+          ]},
+          { text: "💡 Learn the article WITH the noun — don't memorize gender separately", examples: [
+            {fr:"le cinéma",en:"the cinema"},{fr:"le restaurant",en:"the restaurant"},{fr:"la voiture",en:"the car"},{fr:"l'hôtel",en:"the hotel"},{fr:"l'université",en:"the university"}
+          ]},
+          { text: "Words starting with a vowel always use <span class='gold'>l'</span> regardless of gender", examples: [
+            {fr:"l'ami",en:"the friend (m)"},{fr:"l'amie",en:"the friend (f)"}
+          ]}
+        ],
+        sentences: [
+          {fr:"Le chat dort sur le lit.",en:"The cat sleeps on the bed."},
+          {fr:"La fille mange la pomme.",en:"The girl eats the apple."},
+          {fr:"L'homme regarde les étoiles.",en:"The man watches the stars."}
+        ],
+        keyRule: "When you see a new noun, ALWAYS learn it with its article. Say \"la maison\" not just \"maison\"."
+      },
+      { // PRACTICE
+        title: "Articles définis — Pratique !",
+        subtitle: "Fill in the correct article and practice full sentences",
+        practice: [
+          {prompt:"___ chat",answer:"le",hint:"cat is masculine"},
+          {prompt:"___ maison",answer:"la",hint:"house is feminine"},
+          {prompt:"___ école",answer:"l'",hint:"starts with vowel"},
+          {prompt:"___ livres",answer:"les",hint:"plural"}
+        ],
+        sentences: [
+          {fr:"Le garçon mange la pomme.",en:"The boy eats the apple."},
+          {fr:"Les enfants jouent dans le jardin.",en:"The children play in the garden."},
+          {fr:"J'aime le fromage.",en:"I love cheese."},
+          {fr:"La musique est belle.",en:"Music is beautiful."},
+          {fr:"Les chiens sont fidèles.",en:"Dogs are loyal."}
+        ],
+        keyRule: "Practice saying each sentence aloud — tap 🔊 to hear the pronunciation!"
+      }
+    ],
+    cards: [
+      {fr:"le chat",en:"the cat"},{fr:"le livre",en:"the book"},{fr:"le soleil",en:"the sun"},
+      {fr:"le garçon",en:"the boy"},{fr:"la maison",en:"the house"},{fr:"la lune",en:"the moon"},
+      {fr:"la fleur",en:"the flower"},{fr:"la fille",en:"the girl"},{fr:"l'école",en:"the school"},
+      {fr:"l'homme",en:"the man"},{fr:"l'eau",en:"the water"},{fr:"l'arbre",en:"the tree"},
+      {fr:"les enfants",en:"the children"},{fr:"les livres",en:"the books"},{fr:"les fleurs",en:"the flowers"},
+      {fr:"le cinéma",en:"the cinema"},{fr:"le restaurant",en:"the restaurant"},{fr:"la rue",en:"the street"},
+      {fr:"la voiture",en:"the car"},{fr:"l'hôtel",en:"the hotel"},{fr:"l'université",en:"the university"}
+    ]
+  },
+  {
+    id: "articles-indefinis", name: "Articles indéfinis", category: "articles",
+    positions: [
+      {
+        title: "Les articles indéfinis — un, une, des",
+        subtitle: "Indefinite articles: a, an, some",
+        rules: [
+          { text: "<span class='masc'>un</span> = masculine singular (a/an)", examples: [
+            {fr:"un chat",en:"a cat"},{fr:"un livre",en:"a book"},{fr:"un ami",en:"a friend (m)"}
+          ]},
+          { text: "<span class='fem'>une</span> = feminine singular (a/an)", examples: [
+            {fr:"une maison",en:"a house"},{fr:"une fleur",en:"a flower"},{fr:"une amie",en:"a friend (f)"}
+          ]},
+          { text: "<span class='gold'>des</span> = plural (some)", examples: [
+            {fr:"des livres",en:"some books"},{fr:"des enfants",en:"some children"},{fr:"des fleurs",en:"some flowers"}
+          ]}
+        ],
+        keyRule: "Défini = specific (THE cat → le chat). Indéfini = unspecific (A cat → un chat)."
+      },
+      {
+        title: "Articles indéfinis — Deeper Look",
+        subtitle: "Comparing definite vs indefinite, special rules",
+        rules: [
+          { text: "Comparing défini vs indéfini", examples: [
+            {fr:"le chat",en:"the cat (specific)"},{fr:"un chat",en:"a cat (any cat)"}
+          ]},
+          { text: "In negative sentences: <span class='gold'>des → de/d'</span>", examples: [
+            {fr:"J'ai des amis.",en:"I have friends."},{fr:"Je n'ai pas d'amis.",en:"I don't have friends."}
+          ]},
+          { text: "More examples", examples: [
+            {fr:"un problème",en:"a problem"},{fr:"un hôtel",en:"a hotel"},{fr:"une idée",en:"an idea"},{fr:"une orange",en:"an orange"},{fr:"des questions",en:"some questions"}
+          ]}
+        ],
+        keyRule: "In negative sentences, des becomes de (or d' before a vowel): J'ai des amis → Je n'ai pas d'amis."
+      },
+      {
+        title: "Articles indéfinis — Pratique !",
+        subtitle: "Choose the right article in context",
+        practice: [
+          {prompt:"Je vois ___ chat. (a)",answer:"un",hint:"a cat = un chat"},
+          {prompt:"___ maison est grande. (a)",answer:"une",hint:"a house = une maison"},
+          {prompt:"Il y a ___ livres sur la table. (some)",answer:"des",hint:"some books = des livres"}
+        ],
+        sentences: [
+          {fr:"Il y a un chat dans le jardin.",en:"There is a cat in the garden."},
+          {fr:"Elle a une amie française.",en:"She has a French friend."},
+          {fr:"Nous avons des questions.",en:"We have some questions."},
+          {fr:"C'est un bon restaurant.",en:"It's a good restaurant."},
+          {fr:"J'ai une idée !",en:"I have an idea!"}
+        ],
+        keyRule: "When choosing between le/un, ask: am I talking about a SPECIFIC thing (le) or ANY thing (un)?"
+      }
+    ],
+    cards: [
+      {fr:"un chat",en:"a cat"},{fr:"un livre",en:"a book"},{fr:"un ami",en:"a friend (m)"},
+      {fr:"une maison",en:"a house"},{fr:"une fleur",en:"a flower"},{fr:"une amie",en:"a friend (f)"},
+      {fr:"des livres",en:"some books"},{fr:"des enfants",en:"some children"},
+      {fr:"un problème",en:"a problem"},{fr:"une idée",en:"an idea"},{fr:"une orange",en:"an orange"},
+      {fr:"des questions",en:"some questions"},{fr:"un hôtel",en:"a hotel"}
+    ]
+  },
+  {
+    id: "gender-nouns", name: "Genre des noms", category: "grammar",
+    positions: [
+      {
+        title: "Masculin ou Féminin ?",
+        subtitle: "Every French noun has a gender — here's how to guess",
+        rules: [
+          { text: "Usually <span class='masc'>masculine</span> endings", examples: [
+            {fr:"-age: le fromage",en:"cheese"},{fr:"-ment: le moment",en:"moment"},{fr:"-eau: le chapeau",en:"hat"},{fr:"-eur: le bonheur",en:"happiness"}
+          ]},
+          { text: "Usually <span class='fem'>feminine</span> endings", examples: [
+            {fr:"-tion: la nation",en:"nation"},{fr:"-sion: la télévision",en:"television"},{fr:"-ure: la nature",en:"nature"},{fr:"-ette: la fourchette",en:"fork"}
+          ]},
+          { text: "Common exceptions to memorize", examples: [
+            {fr:"la plage",en:"the beach (fem despite -age)"},{fr:"le silence",en:"silence (masc despite -ence)"}
+          ]}
+        ],
+        keyRule: "No rule is 100% — always learn the article with the noun! Say \"la table\" not just \"table\"."
+      },
+      {
+        title: "Genre — Patterns & Tricks",
+        subtitle: "More patterns to help you guess correctly",
+        rules: [
+          { text: "Days, months, seasons, languages = <span class='masc'>masculine</span>", examples: [
+            {fr:"le lundi",en:"Monday"},{fr:"le français",en:"French"},{fr:"le printemps",en:"spring"}
+          ]},
+          { text: "Countries ending in -e = usually <span class='fem'>feminine</span>", examples: [
+            {fr:"la France",en:"France"},{fr:"la Chine",en:"China"},{fr:"le Mexique",en:"Mexico (exception!)"}
+          ]}
+        ],
+        keyRule: "When in doubt, learn the article with the noun. Patterns help, but there are always exceptions."
+      },
+      {
+        title: "Genre — Pratique !",
+        subtitle: "Identify the gender of these nouns",
+        practice: [
+          {prompt:"la maison → gender?",answer:"féminin",hint:"la = feminine"},
+          {prompt:"le soleil → gender?",answer:"masculin",hint:"le = masculine"},
+          {prompt:"la télévision → gender?",answer:"féminin",hint:"-tion ending = usually feminine"},
+          {prompt:"le fromage → gender?",answer:"masculin",hint:"-age ending = usually masculine"}
+        ],
+        sentences: [
+          {fr:"La nature est belle.",en:"Nature is beautiful."},
+          {fr:"Le moment est parfait.",en:"The moment is perfect."},
+          {fr:"La télévision est allumée.",en:"The TV is on."}
+        ],
+        keyRule: "Endings give clues: -tion/-sion = feminine, -age/-ment = masculine. But always verify!"
+      }
+    ],
+    cards: [
+      {fr:"le fromage",en:"cheese (m)"},{fr:"le moment",en:"moment (m)"},{fr:"le chapeau",en:"hat (m)"},
+      {fr:"la nation",en:"nation (f)"},{fr:"la télévision",en:"television (f)"},{fr:"la nature",en:"nature (f)"},
+      {fr:"la fourchette",en:"fork (f)"},{fr:"le lundi",en:"Monday (m)"},{fr:"le français",en:"French (m)"},
+      {fr:"la France",en:"France (f)"},{fr:"la plage",en:"beach (f)"}
+    ]
+  },
+  {
+    id: "plural-nouns", name: "Le pluriel", category: "grammar",
+    positions: [
+      {
+        title: "Le pluriel des noms",
+        subtitle: "How to make French nouns plural",
+        rules: [
+          { text: "General rule: add <span class='gold'>-s</span>", examples: [
+            {fr:"le chat → les chats",en:"cat → cats"},{fr:"la fleur → les fleurs",en:"flower → flowers"}
+          ]},
+          { text: "Words ending in -eau/-au: add <span class='gold'>-x</span>", examples: [
+            {fr:"le chapeau → les chapeaux",en:"hat → hats"},{fr:"le gâteau → les gâteaux",en:"cake → cakes"}
+          ]},
+          { text: "Words ending in -al: change to <span class='gold'>-aux</span>", examples: [
+            {fr:"l'animal → les animaux",en:"animal → animals"},{fr:"le journal → les journaux",en:"newspaper → newspapers"}
+          ]},
+          { text: "Words ending in -s, -x, -z: <span class='gold'>no change</span>", examples: [
+            {fr:"le fils → les fils",en:"son → sons"},{fr:"la voix → les voix",en:"voice → voices"}
+          ]}
+        ],
+        keyRule: "The final -s in French plurals is SILENT! \"les chats\" sounds like \"lay sha\"."
+      },
+      {
+        title: "Le pluriel — Exceptions",
+        subtitle: "Irregular plurals and special cases",
+        rules: [
+          { text: "Irregular plurals to memorize", examples: [
+            {fr:"l'œil → les yeux",en:"eye → eyes"},{fr:"monsieur → messieurs",en:"sir → sirs"},{fr:"madame → mesdames",en:"madam → madams"}
+          ]},
+          { text: "Family names: <span class='gold'>no -s</span>", examples: [
+            {fr:"les Dupont",en:"the Duponts (no s)"}
+          ]}
+        ],
+        keyRule: "Most plurals just add -s (silent!). Watch out for -eau→-eaux and -al→-aux."
+      },
+      {
+        title: "Le pluriel — Pratique !",
+        subtitle: "Form the plural",
+        practice: [
+          {prompt:"le chat → les ___",answer:"chats",hint:"regular: add -s"},
+          {prompt:"le chapeau → les ___",answer:"chapeaux",hint:"-eau → -eaux"},
+          {prompt:"l'animal → les ___",answer:"animaux",hint:"-al → -aux"}
+        ],
+        sentences: [
+          {fr:"Les chats dorment sur le lit.",en:"The cats sleep on the bed."},
+          {fr:"Les gâteaux sont délicieux.",en:"The cakes are delicious."},
+          {fr:"Les animaux sont dans le jardin.",en:"The animals are in the garden."}
+        ],
+        keyRule: "Remember: the -s is silent! French plural is heard in the article (le→les) not the noun ending."
+      }
+    ],
+    cards: [
+      {fr:"les chats",en:"the cats"},{fr:"les chapeaux",en:"the hats"},{fr:"les gâteaux",en:"the cakes"},
+      {fr:"les animaux",en:"the animals"},{fr:"les journaux",en:"the newspapers"},
+      {fr:"les yeux",en:"the eyes"},{fr:"les fils",en:"the sons"}
+    ]
+  },
+  {
+    id: "subject-pronouns", name: "Pronoms sujets", category: "pronouns",
+    positions: [
+      {
+        title: "Les pronoms sujets",
+        subtitle: "Subject pronouns in French",
+        rules: [
+          { text: "Singular pronouns", examples: [
+            {fr:"je",en:"I"},{fr:"tu",en:"you (informal)"},{fr:"il",en:"he/it (m)"},{fr:"elle",en:"she/it (f)"},{fr:"on",en:"we (informal)/one"}
+          ]},
+          { text: "Plural pronouns", examples: [
+            {fr:"nous",en:"we"},{fr:"vous",en:"you (formal/plural)"},{fr:"ils",en:"they (m/mixed)"},{fr:"elles",en:"they (all f)"}
+          ]}
+        ],
+        keyRule: "\"tu\" = informal (friends, family). \"vous\" = formal OR plural. When in doubt, use \"vous\"!"
+      },
+      {
+        title: "Pronoms sujets — Nuances",
+        subtitle: "When to use tu vs vous, on vs nous",
+        rules: [
+          { text: "<span class='masc'>tu</span> vs <span class='gold'>vous</span>", examples: [
+            {fr:"Tu es mon ami.",en:"You are my friend. (informal)"},{fr:"Vous êtes mon professeur.",en:"You are my teacher. (formal)"}
+          ]},
+          { text: "<span class='gold'>on</span> = informal \"we\" (very common!)", examples: [
+            {fr:"On va au cinéma.",en:"We're going to the cinema."},{fr:"On mange bien ici.",en:"We eat well here."}
+          ]},
+          { text: "<span class='masc'>ils</span> vs <span class='fem'>elles</span>", examples: [
+            {fr:"ils (boys + girls mixed)",en:"they (any group with males)"},{fr:"elles (girls only)",en:"they (all female group)"}
+          ]}
+        ],
+        keyRule: "In everyday French, \"on\" has almost replaced \"nous\". You'll hear \"on y va !\" (let's go!) constantly."
+      },
+      {
+        title: "Pronoms — Pratique !",
+        subtitle: "Choose the right pronoun",
+        practice: [
+          {prompt:"Marie → ___",answer:"elle",hint:"Marie is feminine singular"},
+          {prompt:"Pierre et Paul → ___",answer:"ils",hint:"two males = ils"},
+          {prompt:"Marie et Sophie → ___",answer:"elles",hint:"all female = elles"},
+          {prompt:"You (to your boss) → ___",answer:"vous",hint:"formal = vous"}
+        ],
+        sentences: [
+          {fr:"Je suis étudiant.",en:"I am a student."},{fr:"Tu es français ?",en:"Are you French?"},{fr:"Elle est grande.",en:"She is tall."},{fr:"On est prêts !",en:"We're ready!"}
+        ],
+        keyRule: "Quick test: if you'd call someone by their first name, use \"tu\". Otherwise, \"vous\"."
+      }
+    ],
+    cards: [
+      {fr:"je",en:"I"},{fr:"tu",en:"you (informal)"},{fr:"il",en:"he"},{fr:"elle",en:"she"},
+      {fr:"on",en:"we (informal)"},{fr:"nous",en:"we"},{fr:"vous",en:"you (formal/plural)"},
+      {fr:"ils",en:"they (m)"},{fr:"elles",en:"they (f)"}
+    ]
+  },
+  {
+    id: "etre", name: "Être (to be)", category: "verbs",
+    positions: [
+      {
+        title: "Le verbe ÊTRE — présent",
+        subtitle: "The most important French verb: to be",
+        rules: [
+          { text: "Conjugation of <span class='gold'>être</span>", examples: [
+            {fr:"je suis",en:"I am"},{fr:"tu es",en:"you are"},{fr:"il/elle/on est",en:"he/she/one is"},
+            {fr:"nous sommes",en:"we are"},{fr:"vous êtes",en:"you are"},{fr:"ils/elles sont",en:"they are"}
+          ]}
+        ],
+        keyRule: "Être is completely irregular — you must memorize all forms! \"suis, es, est, sommes, êtes, sont\""
+      },
+      {
+        title: "Être — Usage & Examples",
+        subtitle: "How to use être in real sentences",
+        rules: [
+          { text: "Describing people & things", examples: [
+            {fr:"Je suis fatigué.",en:"I am tired."},{fr:"Elle est belle.",en:"She is beautiful."},{fr:"Nous sommes contents.",en:"We are happy."}
+          ]},
+          { text: "Nationality & profession (NO article!)", examples: [
+            {fr:"Je suis français.",en:"I am French."},{fr:"Elle est médecin.",en:"She is a doctor."},{fr:"Ils sont étudiants.",en:"They are students."}
+          ]}
+        ],
+        keyRule: "Unlike English, French drops the article for professions: \"She is a doctor\" = \"Elle est médecin\" (no \"une\")."
+      },
+      {
+        title: "Être — Pratique !",
+        subtitle: "Fill in the correct form of être",
+        practice: [
+          {prompt:"Je ___ français.",answer:"suis",hint:"je + être = je suis"},
+          {prompt:"Tu ___ prêt ?",answer:"es",hint:"tu + être = tu es"},
+          {prompt:"Nous ___ contents.",answer:"sommes",hint:"nous + être = nous sommes"},
+          {prompt:"Ils ___ grands.",answer:"sont",hint:"ils + être = ils sont"}
+        ],
+        sentences: [
+          {fr:"Je suis étudiant.",en:"I am a student."},{fr:"Tu es mon ami.",en:"You are my friend."},
+          {fr:"Elle est intelligente.",en:"She is intelligent."},{fr:"Vous êtes gentils.",en:"You are kind."}
+        ],
+        keyRule: "Sing it: suis, es, est, sommes, êtes, sont! Repeat until it's automatic."
+      }
+    ],
+    cards: [
+      {fr:"je suis",en:"I am"},{fr:"tu es",en:"you are"},{fr:"il est",en:"he is"},{fr:"elle est",en:"she is"},
+      {fr:"nous sommes",en:"we are"},{fr:"vous êtes",en:"you are"},{fr:"ils sont",en:"they are"},
+      {fr:"Je suis fatigué.",en:"I am tired."},{fr:"Elle est belle.",en:"She is beautiful."},
+      {fr:"Nous sommes contents.",en:"We are happy."},{fr:"Je suis français.",en:"I am French."}
+    ]
+  },
+  {
+    id: "avoir", name: "Avoir (to have)", category: "verbs",
+    positions: [
+      {
+        title: "Le verbe AVOIR — présent",
+        subtitle: "Another essential verb: to have",
+        rules: [
+          { text: "Conjugation of <span class='gold'>avoir</span>", examples: [
+            {fr:"j'ai",en:"I have"},{fr:"tu as",en:"you have"},{fr:"il/elle/on a",en:"he/she/one has"},
+            {fr:"nous avons",en:"we have"},{fr:"vous avez",en:"you have"},{fr:"ils/elles ont",en:"they have"}
+          ]}
+        ],
+        keyRule: "Note: \"je\" becomes \"j'\" before \"ai\" (vowel). Avoir is irregular — memorize all forms!"
+      },
+      {
+        title: "Avoir — Special Expressions",
+        subtitle: "French uses \"avoir\" where English uses \"to be\"",
+        rules: [
+          { text: "Age, hunger, thirst use <span class='gold'>avoir</span> (not être!)", examples: [
+            {fr:"J'ai 20 ans.",en:"I am 20 years old."},{fr:"J'ai faim.",en:"I am hungry."},{fr:"J'ai soif.",en:"I am thirsty."},
+            {fr:"J'ai froid.",en:"I am cold."},{fr:"J'ai chaud.",en:"I am hot."},{fr:"J'ai peur.",en:"I am afraid."}
+          ]},
+          { text: "\"Il y a\" = there is / there are", examples: [
+            {fr:"Il y a un chat.",en:"There is a cat."},{fr:"Il y a des problèmes.",en:"There are problems."}
+          ]}
+        ],
+        keyRule: "Big trap for English speakers: age/hunger/thirst use AVOIR! \"J'ai 20 ans\" NOT \"Je suis 20 ans\"."
+      },
+      {
+        title: "Avoir — Pratique !",
+        subtitle: "Fill in the correct form of avoir",
+        practice: [
+          {prompt:"J'___ un chat.",answer:"ai",hint:"j' + avoir = j'ai"},
+          {prompt:"Tu ___ faim ?",answer:"as",hint:"tu + avoir = tu as"},
+          {prompt:"Nous ___ des questions.",answer:"avons",hint:"nous + avoir = nous avons"},
+          {prompt:"Elles ___ 15 ans.",answer:"ont",hint:"elles + avoir = elles ont"}
+        ],
+        sentences: [
+          {fr:"J'ai un frère et une sœur.",en:"I have a brother and a sister."},
+          {fr:"Il a 25 ans.",en:"He is 25 years old."},{fr:"Nous avons faim.",en:"We are hungry."},
+          {fr:"Vous avez raison.",en:"You are right."}
+        ],
+        keyRule: "Avoir expressions: ai, as, a, avons, avez, ont. Remember: j'ai (not je ai)!"
+      }
+    ],
+    cards: [
+      {fr:"j'ai",en:"I have"},{fr:"tu as",en:"you have"},{fr:"il a",en:"he has"},
+      {fr:"nous avons",en:"we have"},{fr:"vous avez",en:"you have"},{fr:"ils ont",en:"they have"},
+      {fr:"J'ai faim.",en:"I am hungry."},{fr:"J'ai 20 ans.",en:"I am 20 years old."},
+      {fr:"Il y a un chat.",en:"There is a cat."},{fr:"J'ai peur.",en:"I am afraid."}
+    ]
+  },
+  {
+    id: "negation", name: "La négation", category: "grammar",
+    positions: [
+      {
+        title: "La négation — ne...pas",
+        subtitle: "How to say \"not\" in French",
+        rules: [
+          { text: "Wrap the verb with <span class='gold'>ne...pas</span>", examples: [
+            {fr:"Je ne suis pas français.",en:"I am not French."},{fr:"Il ne mange pas.",en:"He does not eat."},
+            {fr:"Nous ne parlons pas anglais.",en:"We do not speak English."}
+          ]},
+          { text: "<span class='gold'>ne → n'</span> before a vowel", examples: [
+            {fr:"Je n'ai pas de chat.",en:"I don't have a cat."},{fr:"Il n'est pas ici.",en:"He is not here."}
+          ]}
+        ],
+        keyRule: "Formula: Subject + NE + verb + PAS. The \"ne\" often disappears in spoken French! (\"Je sais pas\")"
+      },
+      {
+        title: "La négation — More Details",
+        subtitle: "Articles change in negative sentences",
+        rules: [
+          { text: "un/une/des → <span class='gold'>de/d'</span> after pas", examples: [
+            {fr:"J'ai un chat. → Je n'ai pas de chat.",en:"I have a cat → I don't have a cat."},
+            {fr:"J'ai des amis. → Je n'ai pas d'amis.",en:"I have friends → I don't have friends."}
+          ]},
+          { text: "le/la/les stay the same!", examples: [
+            {fr:"J'aime le café. → Je n'aime pas le café.",en:"I like coffee → I don't like coffee."}
+          ]}
+        ],
+        keyRule: "After \"pas\": un/une/des become de (or d'). But le/la/les don't change!"
+      },
+      {
+        title: "La négation — Pratique !",
+        subtitle: "Make these sentences negative",
+        practice: [
+          {prompt:"Je suis content. → Je ne ___ pas content.",answer:"suis",hint:"ne + verb + pas"},
+          {prompt:"J'ai un chat. → Je n'ai pas ___ chat.",answer:"de",hint:"un → de after pas"},
+          {prompt:"Il parle français. → Il ne ___ pas français.",answer:"parle",hint:"ne + verb + pas"}
+        ],
+        sentences: [
+          {fr:"Je ne comprends pas.",en:"I don't understand."},{fr:"Ce n'est pas vrai.",en:"It's not true."},
+          {fr:"Je n'ai pas d'argent.",en:"I don't have money."}
+        ],
+        keyRule: "In spoken French, \"ne\" often disappears: \"Je sais pas\" instead of \"Je ne sais pas\". But always write it!"
+      }
+    ],
+    cards: [
+      {fr:"Je ne suis pas français.",en:"I am not French."},{fr:"Il ne mange pas.",en:"He doesn't eat."},
+      {fr:"Je n'ai pas de chat.",en:"I don't have a cat."},{fr:"Ce n'est pas vrai.",en:"It's not true."},
+      {fr:"Je ne comprends pas.",en:"I don't understand."},{fr:"Je n'ai pas d'argent.",en:"I don't have money."}
+    ]
+  },
+  {
+    id: "questions", name: "Poser des questions", category: "grammar",
+    positions: [
+      {
+        title: "Comment poser des questions ?",
+        subtitle: "3 ways to ask questions in French",
+        rules: [
+          { text: "1. <span class='gold'>Intonation</span> (easiest — just raise voice)", examples: [
+            {fr:"Tu parles français ?",en:"You speak French?"},{fr:"C'est bon ?",en:"It's good?"}
+          ]},
+          { text: "2. <span class='gold'>Est-ce que</span> + statement", examples: [
+            {fr:"Est-ce que tu parles français ?",en:"Do you speak French?"},{fr:"Est-ce qu'il est là ?",en:"Is he there?"}
+          ]},
+          { text: "3. <span class='gold'>Inversion</span> (formal)", examples: [
+            {fr:"Parlez-vous français ?",en:"Do you speak French?"},{fr:"Es-tu prêt ?",en:"Are you ready?"}
+          ]}
+        ],
+        keyRule: "For beginners: just use intonation or \"est-ce que\" — inversion is formal and can wait!"
+      },
+      {
+        title: "Questions — Question Words",
+        subtitle: "Who, what, where, when, why, how",
+        rules: [
+          { text: "Essential question words", examples: [
+            {fr:"Qui ?",en:"Who?"},{fr:"Quoi ? / Que ?",en:"What?"},{fr:"Où ?",en:"Where?"},
+            {fr:"Quand ?",en:"When?"},{fr:"Pourquoi ?",en:"Why?"},{fr:"Comment ?",en:"How?"},
+            {fr:"Combien ?",en:"How much/many?"}
+          ]},
+          { text: "In full questions", examples: [
+            {fr:"Où est la gare ?",en:"Where is the station?"},{fr:"Comment tu t'appelles ?",en:"What's your name?"},
+            {fr:"Pourquoi tu es ici ?",en:"Why are you here?"}
+          ]}
+        ],
+        keyRule: "Most useful phrase: \"Comment tu t'appelles ?\" (What's your name?) — you'll need this every day in France!"
+      },
+      {
+        title: "Questions — Pratique !",
+        subtitle: "Form questions",
+        practice: [
+          {prompt:"___ tu t'appelles ? (what)",answer:"Comment",hint:"How/What = Comment for names"},
+          {prompt:"___ est la gare ? (where)",answer:"Où",hint:"Where = Où"},
+          {prompt:"Est-ce que tu ___ français ?",answer:"parles",hint:"Do you speak French?"}
+        ],
+        sentences: [
+          {fr:"Tu viens d'où ?",en:"Where are you from?"},{fr:"Qu'est-ce que c'est ?",en:"What is this?"},
+          {fr:"Comment ça va ?",en:"How are you?"}
+        ],
+        keyRule: "Survival questions: Comment ça va? Où est...? C'est combien? Est-ce que vous parlez anglais?"
+      }
+    ],
+    cards: [
+      {fr:"Est-ce que tu parles français ?",en:"Do you speak French?"},{fr:"Où est la gare ?",en:"Where is the station?"},
+      {fr:"Comment tu t'appelles ?",en:"What's your name?"},{fr:"Pourquoi ?",en:"Why?"},
+      {fr:"Comment ça va ?",en:"How are you?"},{fr:"C'est combien ?",en:"How much is it?"},
+      {fr:"Qu'est-ce que c'est ?",en:"What is this?"}
+    ]
+  },
+  {
+    id: "er-verbs", name: "Verbes en -ER", category: "verbs",
+    positions: [
+      {
+        title: "Les verbes en -ER — présent",
+        subtitle: "The largest group of French verbs — and the most regular!",
+        rules: [
+          { text: "Pattern: remove <span class='gold'>-er</span>, add endings", examples: [
+            {fr:"je parle",en:"I speak"},{fr:"tu parles",en:"you speak"},{fr:"il/elle parle",en:"he/she speaks"},
+            {fr:"nous parlons",en:"we speak"},{fr:"vous parlez",en:"you speak"},{fr:"ils/elles parlent",en:"they speak"}
+          ]},
+          { text: "Endings: <span class='gold'>-e, -es, -e, -ons, -ez, -ent</span>", examples: [
+            {fr:"aimer → j'aime",en:"to love → I love"},{fr:"manger → je mange",en:"to eat → I eat"},{fr:"regarder → je regarde",en:"to watch → I watch"}
+          ]}
+        ],
+        keyRule: "je/tu/il/ils endings (-e, -es, -e, -ent) are all SILENT! Only nous (-ons) and vous (-ez) are heard."
+      },
+      {
+        title: "Verbes -ER — Common Verbs",
+        subtitle: "The most useful -ER verbs to know",
+        rules: [
+          { text: "Essential -ER verbs", examples: [
+            {fr:"parler",en:"to speak"},{fr:"manger",en:"to eat"},{fr:"aimer",en:"to love/like"},
+            {fr:"travailler",en:"to work"},{fr:"habiter",en:"to live"},{fr:"regarder",en:"to watch"},
+            {fr:"écouter",en:"to listen"},{fr:"jouer",en:"to play"},{fr:"chercher",en:"to look for"},
+            {fr:"donner",en:"to give"}
+          ]},
+          { text: "In sentences", examples: [
+            {fr:"Je parle français.",en:"I speak French."},{fr:"Tu aimes le chocolat.",en:"You like chocolate."},
+            {fr:"Elle habite à Paris.",en:"She lives in Paris."},{fr:"Nous mangeons au restaurant.",en:"We eat at the restaurant."}
+          ]}
+        ],
+        keyRule: "\"manger\" has a special form: nous mangeons (keep the 'e' to keep the soft 'g' sound)."
+      },
+      {
+        title: "Verbes -ER — Pratique !",
+        subtitle: "Conjugate these -ER verbs",
+        practice: [
+          {prompt:"Je ___ français. (parler)",answer:"parle",hint:"je + parler = je parle"},
+          {prompt:"Tu ___ le chocolat. (aimer)",answer:"aimes",hint:"tu + aimer = tu aimes"},
+          {prompt:"Nous ___ au restaurant. (manger)",answer:"mangeons",hint:"nous mangeons (keep the e!)"},
+          {prompt:"Ils ___ la télé. (regarder)",answer:"regardent",hint:"ils + regarder = ils regardent"}
+        ],
+        sentences: [
+          {fr:"Je travaille à Paris.",en:"I work in Paris."},{fr:"Elle écoute de la musique.",en:"She listens to music."},
+          {fr:"Nous jouons au football.",en:"We play football."},{fr:"Vous cherchez quelque chose ?",en:"Are you looking for something?"}
+        ],
+        keyRule: "-ER verb endings: -e, -es, -e, -ons, -ez, -ent. This pattern covers ~90% of French verbs!"
+      }
+    ],
+    cards: [
+      {fr:"je parle",en:"I speak"},{fr:"tu parles",en:"you speak"},{fr:"il parle",en:"he speaks"},
+      {fr:"nous parlons",en:"we speak"},{fr:"vous parlez",en:"you speak"},{fr:"ils parlent",en:"they speak"},
+      {fr:"j'aime",en:"I love"},{fr:"je mange",en:"I eat"},{fr:"je travaille",en:"I work"},
+      {fr:"j'habite",en:"I live"},{fr:"je regarde",en:"I watch"},{fr:"j'écoute",en:"I listen"}
+    ]
+  }
+];
 
-  var slides = document.querySelectorAll('.slide');
-  var total = slides.length;
-  var cur = 0;
-  var frVoice = null;
+// ═══════════════════════════════════════
+// STATE MANAGEMENT
+// ═══════════════════════════════════════
+const STORAGE_KEY = 'french_tutor_srs';
 
-  // Preload French voice
-  function loadVoice(){
-    var voices = speechSynthesis.getVoices();
-    for(var i=0;i<voices.length;i++){
-      if(voices[i].lang.indexOf('fr')===0){ frVoice=voices[i]; break; }
+function today() { return new Date().toISOString().split('T')[0]; }
+
+function daysBetween(d1, d2) {
+  return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function getDefaultState() {
+  return {
+    cards: {},
+    lesson_history: [],
+    current_topic_index: 0,
+    current_position: 0,
+    weaknesses: {},
+    first_day: today(),
+    last_active: null,
+    streak: 0,
+    total_correct: 0,
+    total_wrong: 0
+  };
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return null;
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function initCards(state, topicIndex) {
+  const topic = CURRICULUM[topicIndex];
+  if (!topic) return;
+  topic.cards.forEach((c, i) => {
+    const id = `${topic.id}_${i}`;
+    if (!state.cards[id]) {
+      state.cards[id] = {
+        id, topic: topic.id, category: topic.category,
+        french: c.fr, english: c.en,
+        easiness: 2.5, interval: 1, repetitions: 0,
+        next_review: addDays(today(), 1),
+        last_score: null, times_correct: 0, times_wrong: 0
+      };
     }
+  });
+}
+
+// ═══════════════════════════════════════
+// SM-2 ALGORITHM
+// ═══════════════════════════════════════
+function sm2Update(card, score) {
+  if (score >= 3) {
+    card.repetitions++;
+    if (card.repetitions === 1) card.interval = 1;
+    else if (card.repetitions === 2) card.interval = 6;
+    else card.interval = Math.round(card.interval * card.easiness);
+    card.easiness = Math.max(1.3, card.easiness + 0.1 - (5 - score) * (0.08 + (5 - score) * 0.02));
+    card.times_correct++;
+  } else {
+    card.repetitions = 0;
+    card.interval = 1;
+    card.times_wrong++;
   }
-  if(hasSpeech){
-    loadVoice();
-    speechSynthesis.onvoiceschanged = loadVoice;
+  card.last_score = score;
+  card.next_review = addDays(today(), card.interval);
+}
+
+// ═══════════════════════════════════════
+// SPEECH
+// ═══════════════════════════════════════
+function speak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'fr-FR'; u.rate = 0.85;
+  const voices = speechSynthesis.getVoices();
+  const frVoice = voices.find(v => v.lang.startsWith('fr'));
+  if (frVoice) u.voice = frVoice;
+  speechSynthesis.speak(u);
+}
+
+// preload voices
+if ('speechSynthesis' in window) {
+  speechSynthesis.getVoices();
+  speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+}
+
+// ═══════════════════════════════════════
+// RENDERING
+// ═══════════════════════════════════════
+const $ = id => document.getElementById(id);
+const main = () => $('mainContent');
+
+let APP_STATE;
+let QUIZ_DATA = [];
+let REVIEW_CARDS = [];
+let QUIZ_SUBMITTED = false;
+let TODAY_DONE = false;
+
+function init() {
+  APP_STATE = loadState() || getDefaultState();
+
+  // Update streak
+  const t = today();
+  if (APP_STATE.last_active) {
+    const diff = daysBetween(APP_STATE.last_active, t);
+    if (diff > 1) APP_STATE.streak = 0;
   }
 
-  function render(){
-    for(var i=0;i<total;i++){
-      slides[i].classList.remove('active','exit-left','exit-right');
-      if(i===cur) slides[i].classList.add('active');
-      else if(i<cur) slides[i].classList.add('exit-left');
-      else slides[i].classList.add('exit-right');
-    }
-    document.getElementById('prevBtn').style.opacity = cur===0?'.2':'1';
-    document.getElementById('nextBtn').style.opacity = cur===total-1?'.2':'1';
-    var h = '<span style="margin-right:10px;color:#888">'+(cur+1)+' / '+total+'</span>';
-    for(var i=0;i<total;i++) h += '<span class="dot'+(i===cur?' active':'')+'"></span>';
-    document.getElementById('footer').innerHTML = h;
+  // Init cards for current + previous topics
+  for (let i = 0; i <= Math.min(APP_STATE.current_topic_index, CURRICULUM.length - 1); i++) {
+    initCards(APP_STATE, i);
   }
+
+  // Check if already done today
+  const todayLessons = APP_STATE.lesson_history.filter(h => h.date === t);
+  TODAY_DONE = todayLessons.length > 0;
+
+  // Get review cards
+  REVIEW_CARDS = Object.values(APP_STATE.cards).filter(c => c.next_review <= t && c.last_score !== null);
+
+  updateHeader();
   render();
+  setupDelegation();
+  saveState(APP_STATE);
+}
 
-  function go(d){
-    var n = cur + d;
-    if(n<0 || n>=total) return;
-    cur = n;
-    render();
+function updateHeader() {
+  const dayNum = Math.max(1, daysBetween(APP_STATE.first_day, today()) + 1);
+  $('dayNum').textContent = dayNum;
+  $('streak').textContent = APP_STATE.streak;
+  const total = APP_STATE.total_correct + APP_STATE.total_wrong;
+  $('accuracy').textContent = total > 0 ? Math.round(APP_STATE.total_correct / total * 100) + '%' : '--%';
+
+  const ti = APP_STATE.current_topic_index;
+  const topic = CURRICULUM[Math.min(ti, CURRICULUM.length - 1)];
+  $('headerTopic').textContent = `Jour ${dayNum} • ${topic ? topic.name : 'Complete!'}`;
+}
+
+function render() {
+  const ti = APP_STATE.current_topic_index;
+  const pos = APP_STATE.current_position;
+
+  if (ti >= CURRICULUM.length && REVIEW_CARDS.length === 0) {
+    main().innerHTML = `<div class="done-card fade-in">
+      <div class="done-emoji">🎉🇫🇷</div>
+      <div class="done-text">Félicitations ! You've completed all A1 lessons!<br>Come back tomorrow for review cards.</div>
+    </div>`;
+    return;
   }
 
-  // Navigation buttons
-  document.getElementById('prevBtn').addEventListener('click', function(){ go(-1); });
-  document.getElementById('nextBtn').addEventListener('click', function(){ go(1); });
+  if (TODAY_DONE && REVIEW_CARDS.length === 0) {
+    main().innerHTML = `<div class="done-card fade-in">
+      <div class="done-emoji">✅</div>
+      <div class="done-text">All caught up for today!<br>Come back tomorrow for your next lesson.</div>
+      <p style="color:var(--text-dim);margin-top:12px;font-size:0.9em;">Next: ${ti < CURRICULUM.length ? CURRICULUM[ti].name : 'Reviews'}</p>
+    </div>`;
+    return;
+  }
 
-  // Keyboard
-  document.addEventListener('keydown', function(e){
-    if(e.key==='ArrowRight' || e.key==='ArrowDown') go(1);
-    if(e.key==='ArrowLeft' || e.key==='ArrowUp') go(-1);
+  let html = '';
+
+  // Lesson section
+  if (!TODAY_DONE && ti < CURRICULUM.length) {
+    const topic = CURRICULUM[ti];
+    const lesson = topic.positions[pos];
+    html += renderLesson(lesson, topic, pos);
+  }
+
+  // Review section
+  if (REVIEW_CARDS.length > 0) {
+    html += renderReview();
+  }
+
+  // Quiz section
+  html += renderQuiz();
+
+  main().innerHTML = html;
+}
+
+function renderLesson(lesson, topic, pos) {
+  const posLabels = ['Introduction', 'Deep Dive', 'Practice'];
+  let h = `<div class="section-header fade-in">📖 ${posLabels[pos]}: ${lesson.title}</div>`;
+  h += `<p style="color:var(--text-dim);margin-bottom:16px;" class="fade-in">${lesson.subtitle}</p>`;
+
+  if (lesson.rules) {
+    lesson.rules.forEach(rule => {
+      h += `<div class="card rule fade-in"><div class="card-label">Rule</div><p style="margin-bottom:8px;">${rule.text}</p>`;
+      if (rule.examples) {
+        rule.examples.forEach(ex => {
+          h += `<div class="example-row">
+            <span class="example-fr">${ex.fr}</span>
+            <button class="speak-btn" data-text="${ex.fr.replace(/"/g, '&quot;')}">🔊</button>
+            <span class="example-en">${ex.en}</span>
+          </div>`;
+        });
+      }
+      h += `</div>`;
+    });
+  }
+
+  if (lesson.sentences) {
+    h += `<div class="card practice fade-in"><div class="card-label">Example Sentences</div>`;
+    lesson.sentences.forEach(s => {
+      h += `<div class="example-row">
+        <span class="example-fr">${s.fr}</span>
+        <button class="speak-btn" data-text="${s.fr.replace(/"/g, '&quot;')}">🔊</button>
+        <span class="example-en">${s.en}</span>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (lesson.practice) {
+    h += `<div class="card practice fade-in"><div class="card-label">Quick Practice</div>`;
+    lesson.practice.forEach(p => {
+      h += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
+        <p style="font-weight:600;">${p.prompt}</p>
+        <p style="color:var(--text-dim);font-size:0.85em;">Answer: <span class="gold">${p.answer}</span> — ${p.hint}</p>
+      </div>`;
+    });
+    h += `</div>`;
+  }
+
+  if (lesson.keyRule) {
+    h += `<div class="rule-box fade-in"><div class="rule-title">💡 Key Rule</div><p>${lesson.keyRule}</p></div>`;
+  }
+
+  return h;
+}
+
+function renderReview() {
+  let h = `<div class="section-header fade-in">🔄 Review (${REVIEW_CARDS.length} cards due)</div>`;
+  REVIEW_CARDS.forEach((card, i) => {
+    h += `<div class="flash-card fade-in" data-fc="${i}">
+      <div class="fc-french">${card.french} <button class="speak-btn" data-text="${card.french.replace(/"/g, '&quot;')}">🔊</button></div>
+      <div class="fc-hint">Tap to reveal</div>
+      <div class="fc-english">${card.english}</div>
+    </div>
+    <div class="rate-btns" data-rate-for="${i}">
+      <button class="rate-btn hard" data-rate="1" data-card-idx="${i}">😟 Hard</button>
+      <button class="rate-btn ok" data-rate="3" data-card-idx="${i}">😐 OK</button>
+      <button class="rate-btn easy" data-rate="5" data-card-idx="${i}">😊 Easy</button>
+    </div>`;
+  });
+  return h;
+}
+
+function generateQuiz() {
+  QUIZ_DATA = [];
+  const ti = APP_STATE.current_topic_index;
+  const topic = ti < CURRICULUM.length ? CURRICULUM[ti] : null;
+
+  // Collect cards for quiz
+  let quizCards = [];
+  if (topic) {
+    topic.cards.forEach((c, i) => {
+      quizCards.push({ ...c, id: `${topic.id}_${i}`, topic: topic.id, category: topic.category });
+    });
+  }
+  REVIEW_CARDS.forEach(c => {
+    if (!quizCards.find(qc => qc.fr === c.french)) {
+      quizCards.push({ fr: c.french, en: c.english, id: c.id, topic: c.topic, category: c.category });
+    }
   });
 
-  // Swipe
-  var tx=0, ty=0;
-  var sw = document.getElementById('sw');
-  sw.addEventListener('touchstart', function(e){ tx=e.touches[0].clientX; ty=e.touches[0].clientY; }, {passive:true});
-  sw.addEventListener('touchend', function(e){
-    var dx = e.changedTouches[0].clientX - tx;
-    var dy = e.changedTouches[0].clientY - ty;
-    if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>40){
-      dx<0 ? go(1) : go(-1);
-    }
-  }, {passive:true});
+  // Shuffle
+  quizCards = quizCards.sort(() => Math.random() - 0.5);
 
-  // Speak a single phrase
-  function say(text, btn){
-    if(!hasSpeech) return;
-    speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'fr-FR';
-    u.rate = 0.85;
-    if(frVoice) u.voice = frVoice;
-    if(btn){
-      btn.classList.add('playing');
-      u.onend = function(){ btn.classList.remove('playing'); };
-      u.onerror = function(){ btn.classList.remove('playing'); };
+  // Generate 8 questions (mix of types)
+  const numQ = Math.min(8, Math.max(5, quizCards.length));
+  const types = ['mcq', 'fill', 'translate', 'mcq'];
+
+  for (let i = 0; i < numQ; i++) {
+    const card = quizCards[i % quizCards.length];
+    const type = types[i % types.length];
+
+    if (type === 'mcq') {
+      // MCQ: English → French
+      const correct = card.fr;
+      const distractors = quizCards
+        .filter(c => c.fr !== correct)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map(c => c.fr);
+      const opts = [correct, ...distractors].sort(() => Math.random() - 0.5);
+      QUIZ_DATA.push({
+        type: 'mcq', question: `What is "${card.en}" in French?`,
+        options: opts, answer: correct, cardId: card.id
+      });
+    } else if (type === 'fill') {
+      // Fill in blank — extract first word
+      const parts = card.fr.split(' ');
+      if (parts.length >= 2) {
+        const blank = parts[0];
+        const rest = parts.slice(1).join(' ');
+        QUIZ_DATA.push({
+          type: 'fill', question: `Fill in: ___ ${rest}`,
+          hint: card.en, answer: blank.toLowerCase(), cardId: card.id
+        });
+      } else {
+        // Fallback to translate
+        QUIZ_DATA.push({
+          type: 'translate', question: `Translate to French: "${card.en}"`,
+          answer: card.fr.toLowerCase(), cardId: card.id
+        });
+      }
+    } else {
+      // Translate English → French
+      QUIZ_DATA.push({
+        type: 'translate', question: `Translate to French: "${card.en}"`,
+        answer: card.fr.toLowerCase(), cardId: card.id
+      });
     }
-    speechSynthesis.speak(u);
   }
+}
 
-  // Event delegation for all .speak buttons (uses data-text attribute)
-  document.addEventListener('click', function(e){
-    var btn = e.target.closest('.speak');
-    if(btn && btn.dataset.text){
-      e.preventDefault();
-      say(btn.dataset.text, btn);
+function renderQuiz() {
+  generateQuiz();
+  if (QUIZ_DATA.length === 0) return '';
+
+  let h = `<div class="section-header fade-in">✏️ Quiz</div>`;
+
+  QUIZ_DATA.forEach((q, i) => {
+    h += `<div class="quiz-q fade-in" data-qi="${i}">
+      <div class="q-num">Question ${i + 1} / ${QUIZ_DATA.length}</div>
+      <div class="q-text">${q.question}</div>`;
+
+    if (q.type === 'mcq') {
+      h += `<div class="mcq-opts">`;
+      q.options.forEach((opt, oi) => {
+        h += `<div class="mcq-opt" data-qi="${i}" data-oi="${oi}" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</div>`;
+      });
+      h += `</div>`;
+    } else {
+      h += `<input class="fill-input" data-qi="${i}" type="text" placeholder="${q.type === 'fill' ? 'Type the missing word...' : 'Type your answer...'}" autocomplete="off" autocapitalize="none" spellcheck="false">`;
+      if (q.hint) h += `<p style="color:var(--text-dim);font-size:0.8em;margin-top:4px;">Hint: ${q.hint}</p>`;
+    }
+    h += `<div class="correction" data-corr="${i}"></div></div>`;
+  });
+
+  h += `<button class="btn-primary" id="submitQuiz">Submit Quiz</button>`;
+  return h;
+}
+
+// ═══════════════════════════════════════
+// EVENT HANDLING (delegation)
+// ═══════════════════════════════════════
+function setupDelegation() {
+  document.body.addEventListener('click', e => {
+    const t = e.target;
+
+    // Speak buttons
+    if (t.classList.contains('speak-btn') || t.closest('.speak-btn')) {
+      e.stopPropagation();
+      const btn = t.classList.contains('speak-btn') ? t : t.closest('.speak-btn');
+      const text = btn.getAttribute('data-text');
+      if (text) speak(text);
       return;
     }
-    var playBtn = e.target.closest('.play-all');
-    if(playBtn){
-      e.preventDefault();
-      playAll(playBtn);
+
+    // Flash card reveal
+    const fc = t.closest('.flash-card');
+    if (fc && !fc.classList.contains('revealed')) {
+      fc.classList.add('revealed');
+      const idx = fc.getAttribute('data-fc');
+      const rateDiv = document.querySelector(`.rate-btns[data-rate-for="${idx}"]`);
+      if (rateDiv) rateDiv.classList.add('show');
+      return;
+    }
+
+    // Rate buttons
+    if (t.classList.contains('rate-btn')) {
+      const score = parseInt(t.getAttribute('data-rate'));
+      const idx = parseInt(t.getAttribute('data-card-idx'));
+      const card = REVIEW_CARDS[idx];
+      if (card) {
+        const stateCard = APP_STATE.cards[card.id];
+        if (stateCard) {
+          sm2Update(stateCard, score);
+          saveState(APP_STATE);
+        }
+      }
+      // Visual feedback
+      const parent = t.parentElement;
+      parent.innerHTML = `<span style="color:var(--success);font-weight:600;">✅ Rated! Next review: ${APP_STATE.cards[card.id]?.next_review || 'soon'}</span>`;
+      return;
+    }
+
+    // MCQ options
+    if (t.classList.contains('mcq-opt') && !QUIZ_SUBMITTED) {
+      const qi = t.getAttribute('data-qi');
+      document.querySelectorAll(`.mcq-opt[data-qi="${qi}"]`).forEach(o => o.classList.remove('selected'));
+      t.classList.add('selected');
+      return;
+    }
+
+    // Submit quiz
+    if (t.id === 'submitQuiz' || t.closest('#submitQuiz')) {
+      submitQuiz();
+      return;
+    }
+
+    // Done button
+    if (t.id === 'doneBtn' || t.closest('#doneBtn')) {
+      TODAY_DONE = true;
+      REVIEW_CARDS = [];
+      render();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Settings
+    if (t.id === 'gearBtn' || t.closest('#gearBtn')) {
+      $('settingsOverlay').classList.add('open');
+      return;
+    }
+    if (t.id === 'closeSettings') {
+      $('settingsOverlay').classList.remove('open');
+      return;
+    }
+    if (t.id === 'settingsOverlay' && t === e.target) {
+      $('settingsOverlay').classList.remove('open');
+      return;
+    }
+    if (t.id === 'exportBtn') {
+      exportData();
+      return;
+    }
+    if (t.id === 'importBtn') {
+      $('importFile').click();
+      return;
+    }
+    if (t.id === 'resetBtn') {
+      if (confirm('Reset ALL progress? This cannot be undone!')) {
+        localStorage.removeItem(STORAGE_KEY);
+        APP_STATE = getDefaultState();
+        saveState(APP_STATE);
+        TODAY_DONE = false;
+        REVIEW_CARDS = [];
+        init();
+        $('settingsOverlay').classList.remove('open');
+      }
+      return;
     }
   });
 
-  // Play all French text on a slide
-  function playAll(btn){
-    if(!hasSpeech) return;
-    var slide = btn.closest('.slide');
-    var texts = [];
-    var dataFr = slide.getAttribute('data-fr');
-    if(dataFr){
-      texts = dataFr.split('|');
+  $('importFile').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        APP_STATE = JSON.parse(ev.target.result);
+        saveState(APP_STATE);
+        init();
+        $('settingsOverlay').classList.remove('open');
+        alert('Data imported successfully!');
+      } catch(err) {
+        alert('Invalid file!');
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function submitQuiz() {
+  if (QUIZ_SUBMITTED) return;
+  QUIZ_SUBMITTED = true;
+
+  let correct = 0;
+  const total = QUIZ_DATA.length;
+
+  QUIZ_DATA.forEach((q, i) => {
+    let userAnswer = '';
+    let isCorrect = false;
+    const corrEl = document.querySelector(`[data-corr="${i}"]`);
+
+    if (q.type === 'mcq') {
+      const sel = document.querySelector(`.mcq-opt[data-qi="${i}"].selected`);
+      userAnswer = sel ? sel.getAttribute('data-val') : '';
+      isCorrect = userAnswer === q.answer;
+
+      // Highlight correct/wrong
+      document.querySelectorAll(`.mcq-opt[data-qi="${i}"]`).forEach(o => {
+        if (o.getAttribute('data-val') === q.answer) o.classList.add('correct');
+        else if (o.classList.contains('selected')) o.classList.add('wrong');
+      });
     } else {
-      var speakBtns = slide.querySelectorAll('.speak[data-text]');
-      for(var i=0;i<speakBtns.length;i++){
-        texts.push(speakBtns[i].dataset.text);
+      const input = document.querySelector(`.fill-input[data-qi="${i}"]`);
+      userAnswer = input ? input.value.trim().toLowerCase() : '';
+      isCorrect = userAnswer === q.answer.toLowerCase() ||
+                  userAnswer.replace(/['']/g, "'") === q.answer.replace(/['']/g, "'").toLowerCase();
+      if (input) {
+        input.classList.add(isCorrect ? 'correct' : 'wrong');
+        input.readOnly = true;
       }
     }
-    if(!texts.length) return;
-    speechSynthesis.cancel();
-    var idx = 0;
-    function next(){
-      if(idx >= texts.length) return;
-      var u = new SpeechSynthesisUtterance(texts[idx]);
-      u.lang = 'fr-FR';
-      u.rate = 0.85;
-      if(frVoice) u.voice = frVoice;
-      u.onend = function(){ idx++; setTimeout(next, 400); };
-      u.onerror = function(){ idx++; setTimeout(next, 400); };
-      speechSynthesis.speak(u);
+
+    if (isCorrect) {
+      correct++;
+      if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = '✅ Correct!'; corrEl.style.color = 'var(--success)'; }
+    } else {
+      if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = `❌ Answer: <strong>${q.answer}</strong>`; corrEl.style.color = 'var(--error)'; }
     }
-    next();
+
+    // Update SRS for this card
+    const score = isCorrect ? 4 : 1;
+    if (q.cardId && APP_STATE.cards[q.cardId]) {
+      sm2Update(APP_STATE.cards[q.cardId], score);
+    }
+
+    if (isCorrect) APP_STATE.total_correct++;
+    else APP_STATE.total_wrong++;
+  });
+
+  // Save lesson history
+  const pct = Math.round(correct / total * 100);
+  const ti = APP_STATE.current_topic_index;
+  const topic = ti < CURRICULUM.length ? CURRICULUM[ti] : null;
+
+  APP_STATE.lesson_history.push({
+    date: today(),
+    topic: topic ? topic.id : 'review',
+    position: APP_STATE.current_position,
+    quiz_score: pct
+  });
+
+  // Advance curriculum
+  if (topic && !TODAY_DONE) {
+    APP_STATE.current_position++;
+    if (APP_STATE.current_position >= 3) {
+      APP_STATE.current_position = 0;
+      APP_STATE.current_topic_index++;
+      // Init new topic cards
+      if (APP_STATE.current_topic_index < CURRICULUM.length) {
+        initCards(APP_STATE, APP_STATE.current_topic_index);
+      }
+    }
   }
 
-})();
+  // Update streak
+  if (APP_STATE.last_active !== today()) {
+    const diff = APP_STATE.last_active ? daysBetween(APP_STATE.last_active, today()) : 0;
+    APP_STATE.streak = (diff <= 1) ? APP_STATE.streak + 1 : 1;
+  }
+  APP_STATE.last_active = today();
+
+  // Update weaknesses
+  if (topic) {
+    const cat = topic.category;
+    const catCards = Object.values(APP_STATE.cards).filter(c => c.category === cat);
+    const catTotal = catCards.reduce((s, c) => s + c.times_correct + c.times_wrong, 0);
+    const catCorrect = catCards.reduce((s, c) => s + c.times_correct, 0);
+    APP_STATE.weaknesses[cat] = catTotal > 0 ? catCorrect / catTotal : 0;
+  }
+
+  saveState(APP_STATE);
+  updateHeader();
+
+  // Replace submit button with results
+  const btn = $('submitQuiz');
+  if (btn) btn.remove();
+
+  const resultsHtml = `
+    <div class="results-card fade-in">
+      <div class="results-score">${correct}/${total}</div>
+      <div class="results-label">${pct >= 80 ? 'Excellent ! 🎉' : pct >= 60 ? 'Pas mal ! 👍' : 'Keep practicing! 💪'}</div>
+      <div class="results-details">
+        <p>📊 Score: <span class="gold">${pct}%</span></p>
+        <p>🔥 Streak: <span class="gold">${APP_STATE.streak} day${APP_STATE.streak !== 1 ? 's' : ''}</span></p>
+        ${topic ? `<p>📖 Next: <span class="gold">${APP_STATE.current_topic_index < CURRICULUM.length ? CURRICULUM[APP_STATE.current_topic_index].name + ' — ' + ['Intro','Deep Dive','Practice'][APP_STATE.current_position] : 'Reviews only'}</span></p>` : ''}
+        <p>📅 Come back tomorrow for more!</p>
+      </div>
+    </div>
+    <button class="btn-primary" id="doneBtn" style="background:linear-gradient(135deg,var(--success),#388e3c);">Done ✅</button>`;
+
+  main().insertAdjacentHTML('beforeend', resultsHtml);
+  document.querySelector('.results-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(APP_STATE, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `french-tutor-backup-${today()}.json`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
 </html>
