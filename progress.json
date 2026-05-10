@@ -1,12 +1,17 @@
 {
   "current_level": "A1",
-  "lesson_number": 2,
+  "lesson_number": 5,
   "lessons_completed": [
     {"topic": "Articles définis (le, la, les)", "position": 0, "date": "2026-05-08"},
-    {"topic": "Articles définis (le, la, les)", "position": 1, "date": "2026-05-09"}
+    {"topic": "Articles définis (le, la, les)", "position": 1, "date": "2026-05-09"},
+    {"topic": "Articles définis (le, la, les)", "position": 2, "date": "2026-05-09"},
+    {"topic": "Articles indéfinis (un, une, des)", "position": 0, "date": "2026-05-09"},
+    {"topic": "Articles indéfinis (un, une, des)", "position": 1, "date": "2026-05-10"}
   ],
-  "quiz_number": 0,
-  "quiz_results": [],
+  "quiz_number": 1,
+  "quiz_results": [
+    {"quiz_number": 0, "date": "2026-05-10", "topics_covered": ["Articles définis (le, la, les)", "Articles indéfinis (un, une, des)"]}
+  ],
   "quiz_difficulty": "mcq",
   "timezone": "Europe/Paris",
   "home_base": "Malaysia",
