@@ -8,215 +8,645 @@
 <title>French Tutor 🇫🇷</title>
 <style>
 :root {
-  --bg: #1a1a2e;
-  --card: #16213e;
-  --card-alt: #1a2744;
-  --blue: #4a7fc4;
-  --white: #e8e8e8;
-  --red: #c44a4a;
-  --gold: #f0c040;
-  --masc: #4a7fc4;
-  --fem: #c44a4a;
-  --text: #e8e8e8;
-  --text-dim: #8899aa;
-  --success: #4caf50;
-  --error: #e74c3c;
+  --bg: #08090a;
+  --surface: rgba(255,255,255,0.03);
+  --surface-border: rgba(255,255,255,0.08);
+  --surface-hover: rgba(255,255,255,0.06);
+  --primary: #f7f8f8;
+  --secondary: #8a8f98;
+  --accent-start: #667eea;
+  --accent-end: #764ba2;
+  --accent: linear-gradient(135deg, #667eea, #764ba2);
+  --success: #10b981;
+  --error: #ef4444;
+  --gold: #f59e0b;
+  --masc: #667eea;
+  --fem: #e879a8;
+  --radius-sm: 8px;
   --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
   --safe-top: env(safe-area-inset-top, 20px);
   --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-family: var(--font);
   background: var(--bg);
-  color: var(--text);
+  color: var(--primary);
   line-height: 1.6;
   overflow-x: hidden;
   -webkit-text-size-adjust: 100%;
-  padding-bottom: calc(40px + var(--safe-bottom));
+  padding-bottom: calc(72px + var(--safe-bottom));
+  min-height: 100vh;
 }
+
+/* ═══ SKELETON LOADER ═══ */
+.skeleton-loader {
+  position: fixed; inset: 0; z-index: 999;
+  background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 24px; transition: opacity 0.5s, visibility 0.5s;
+}
+.skeleton-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.skeleton-pulse {
+  width: 80%; max-width: 400px; height: 16px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+  background-size: 200% 100%;
+  border-radius: 8px;
+  animation: shimmer 1.5s infinite;
+}
+.skeleton-pulse:nth-child(2) { width: 60%; }
+.skeleton-pulse:nth-child(3) { width: 70%; height: 120px; border-radius: 16px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ═══ HEADER ═══ */
 header {
   position: sticky; top: 0; z-index: 100;
-  background: linear-gradient(135deg, #0f1527, #16213e);
-  padding: calc(var(--safe-top) + 8px) 16px 10px;
-  border-bottom: 2px solid var(--blue);
-  backdrop-filter: blur(10px);
+  background: rgba(8,9,10,0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: calc(var(--safe-top) + 8px) 16px 12px;
+  border-bottom: 1px solid var(--surface-border);
 }
-.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.header-title { font-size: 1.1em; font-weight: 700; }
-.header-title .flag { font-size: 1.3em; }
-.header-stats { display: flex; gap: 14px; font-size: 0.82em; color: var(--text-dim); flex-wrap: wrap; }
-.header-stats span { white-space: nowrap; }
-.stat-val { color: var(--gold); font-weight: 600; }
-.gear-btn { background: none; border: none; color: var(--text-dim); font-size: 1.4em; cursor: pointer; padding: 4px; }
-main { max-width: 600px; margin: 0 auto; padding: 16px; }
-.section-header {
-  font-size: 1.3em; font-weight: 700; margin: 24px 0 12px;
-  padding-bottom: 6px; border-bottom: 2px solid var(--gold);
-  display: flex; align-items: center; gap: 8px;
+.header-row {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 600px; margin: 0 auto;
 }
+.header-left { display: flex; align-items: center; gap: 12px; }
+.level-badge {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 0.85em;
+  box-shadow: 0 0 20px rgba(102,126,234,0.3);
+  flex-shrink: 0;
+}
+.xp-info { display: flex; flex-direction: column; }
+.xp-label { font-size: 0.7em; color: var(--secondary); text-transform: uppercase; letter-spacing: 1px; }
+.xp-bar-wrap {
+  width: 100px; height: 4px; background: rgba(255,255,255,0.08);
+  border-radius: 4px; overflow: hidden; margin-top: 2px;
+}
+.xp-bar-fill {
+  height: 100%; background: var(--accent); border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.header-right { display: flex; align-items: center; gap: 8px; }
+.streak-badge {
+  display: flex; align-items: center; gap: 4px;
+  font-weight: 700; font-size: 0.95em; color: var(--gold);
+  padding: 4px 10px; border-radius: 20px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.2);
+}
+.streak-badge.glow {
+  animation: streakGlow 2s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(245,158,11,0.3);
+}
+.streak-fire { display: inline-block; }
+.streak-fire.pulse { animation: firePulse 1s ease-in-out infinite; }
+@keyframes firePulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+@keyframes streakGlow {
+  0%,100% { box-shadow: 0 0 10px rgba(245,158,11,0.2); }
+  50% { box-shadow: 0 0 25px rgba(245,158,11,0.4); }
+}
+.icon-btn {
+  background: none; border: none; color: var(--secondary); font-size: 1.2em;
+  cursor: pointer; padding: 8px; border-radius: 8px;
+  transition: background 0.2s, transform 0.1s;
+  min-width: 44px; min-height: 44px;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:hover { background: var(--surface-hover); }
+.icon-btn:active { transform: scale(0.92); }
+.icon-btn.muted { opacity: 0.4; }
+
+/* ═══ PROGRESS RING ═══ */
+.progress-ring-wrap {
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px 0 8px; position: relative;
+}
+.progress-ring { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 6; }
+.progress-ring-fill {
+  fill: none; stroke: url(#progressGrad); stroke-width: 6;
+  stroke-linecap: round; transition: stroke-dashoffset 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.progress-ring-label {
+  position: absolute; text-align: center;
+}
+.progress-ring-label .big { font-size: 1.8em; font-weight: 800; }
+.progress-ring-label .sub { font-size: 0.75em; color: var(--secondary); }
+
+/* ═══ LESSON STEPS ═══ */
+.lesson-steps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; padding: 16px 0; max-width: 300px; margin: 0 auto;
+}
+.step {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--surface-border);
+  font-size: 0.8em; font-weight: 700; color: var(--secondary);
+  transition: all 0.3s;
+  position: relative; z-index: 1;
+}
+.step.active {
+  background: var(--accent);
+  border-color: transparent; color: white;
+  box-shadow: 0 0 20px rgba(102,126,234,0.3);
+}
+.step.completed {
+  background: var(--success); border-color: transparent; color: white;
+}
+.step-line {
+  width: 40px; height: 2px; background: var(--surface-border);
+  transition: background 0.3s;
+}
+.step-line.completed { background: var(--success); }
+
+/* ═══ MAIN CONTENT ═══ */
+.app-container { max-width: 600px; margin: 0 auto; padding: 0 16px 16px; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ═══ SECTION HEADERS ═══ */
+.section-title {
+  font-size: 1.4em; font-weight: 800; margin: 20px 0 6px;
+  background: var(--accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: slideUp 0.5s ease-out;
+}
+.section-subtitle {
+  color: var(--secondary); font-size: 0.9em; margin-bottom: 20px;
+  animation: slideUp 0.5s ease-out 0.05s both;
+}
+
+/* ═══ CARDS ═══ */
 .card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid var(--blue);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 14px;
+  animation: slideUp 0.4s ease-out both;
+  transition: border-color 0.2s;
 }
-.card.fem { border-left-color: var(--fem); }
-.card.rule { border-left-color: var(--gold); background: linear-gradient(135deg, #1e2a45, #16213e); }
-.card.practice { border-left-color: var(--success); }
+.card:hover { border-color: rgba(255,255,255,0.12); }
+.card.rule { border-left: 3px solid var(--gold); }
+.card.practice { border-left: 3px solid var(--success); }
 .card-label {
-  font-size: 0.75em; text-transform: uppercase; letter-spacing: 1px;
-  color: var(--text-dim); margin-bottom: 6px;
+  font-size: 0.65em; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--secondary); margin-bottom: 8px; font-weight: 600;
 }
 .french {
-  font-size: 1.25em; font-weight: 600; margin-bottom: 4px;
+  font-size: 1.2em; font-weight: 700; margin-bottom: 4px;
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
-.english { color: var(--text-dim); font-size: 0.95em; }
+.english { color: var(--secondary); font-size: 0.9em; }
 .speak-btn {
-  background: none; border: none; font-size: 1.1em; cursor: pointer;
-  padding: 4px 6px; border-radius: 6px; color: var(--blue); flex-shrink: 0;
+  background: none; border: none; font-size: 1em; cursor: pointer;
+  padding: 6px 8px; border-radius: var(--radius-sm); color: var(--accent-start);
+  flex-shrink: 0; transition: background 0.2s, transform 0.1s;
+  min-width: 36px; min-height: 36px;
+  display: inline-flex; align-items: center; justify-content: center;
 }
-.speak-btn:active { background: rgba(74,127,196,0.2); }
+.speak-btn:active { background: rgba(102,126,234,0.15); transform: scale(0.9); }
 .example-row {
-  display: flex; align-items: center; gap: 8px; padding: 8px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex; align-items: center; gap: 8px; padding: 10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 .example-row:last-child { border-bottom: none; }
-.example-fr { font-weight: 600; flex: 1; font-size: 1.05em; }
-.example-en { color: var(--text-dim); font-size: 0.9em; flex: 1; }
+.example-fr { font-weight: 600; flex: 1; font-size: 1em; }
+.example-en { color: var(--secondary); font-size: 0.85em; flex: 1; }
 .masc { color: var(--masc); }
 .fem { color: var(--fem); }
 .gold { color: var(--gold); }
 .rule-box {
-  background: rgba(240,192,64,0.08);
-  border: 1px solid rgba(240,192,64,0.3);
-  border-radius: var(--radius);
-  padding: 14px; margin: 12px 0;
+  background: rgba(245,158,11,0.05);
+  border: 1px solid rgba(245,158,11,0.15);
+  border-radius: var(--radius-lg);
+  padding: 16px; margin: 14px 0;
+  animation: slideUp 0.4s ease-out both;
 }
-.rule-box .rule-title { color: var(--gold); font-weight: 700; margin-bottom: 4px; font-size: 0.9em; }
-/* Flash cards */
+.rule-box .rule-title { color: var(--gold); font-weight: 700; margin-bottom: 6px; font-size: 0.85em; }
+
+/* ═══ FLASHCARDS (3D FLIP) ═══ */
+.fc-container {
+  perspective: 1000px;
+  margin-bottom: 16px;
+  animation: slideUp 0.4s ease-out both;
+}
 .flash-card {
-  background: var(--card); border-radius: var(--radius); padding: 20px;
-  margin-bottom: 12px; text-align: center; cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s;
-  min-height: 100px; display: flex; flex-direction: column; justify-content: center; align-items: center;
+  position: relative;
+  min-height: 140px;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.flash-card.revealed { background: var(--card-alt); }
-.flash-card .fc-french { font-size: 1.4em; font-weight: 700; margin-bottom: 8px; }
-.flash-card .fc-english { color: var(--gold); font-size: 1.1em; display: none; margin-top: 8px; }
-.flash-card.revealed .fc-english { display: block; }
-.flash-card .fc-hint { color: var(--text-dim); font-size: 0.8em; margin-top: 8px; }
-.flash-card.revealed .fc-hint { display: none; }
-.rate-btns { display: flex; gap: 8px; margin-top: 10px; display: none; }
-.flash-card.revealed + .rate-btns, .rate-btns.show { display: flex !important; }
+.flash-card.revealed { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px; text-align: center;
+}
+.fc-back {
+  transform: rotateY(180deg);
+  background: rgba(16,185,129,0.05);
+  border-color: rgba(16,185,129,0.2);
+}
+.fc-french { font-size: 1.5em; font-weight: 800; margin-bottom: 8px; }
+.fc-hint { color: var(--secondary); font-size: 0.8em; margin-top: 8px; }
+.fc-english { color: var(--gold); font-size: 1.2em; font-weight: 600; }
+.fc-counter {
+  font-size: 0.75em; color: var(--secondary);
+  text-align: center; margin-bottom: 8px;
+}
+.rate-btns {
+  display: none; gap: 8px; margin-bottom: 16px;
+  animation: slideUp 0.3s ease-out;
+}
+.rate-btns.show { display: flex !important; }
 .rate-btn {
-  flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 1em;
-  cursor: pointer; font-weight: 600; color: white;
+  flex: 1; padding: 12px 8px; border: none; border-radius: var(--radius);
+  font-size: 0.95em; cursor: pointer; font-weight: 700; color: white;
+  transition: transform 0.1s, opacity 0.2s;
+  min-height: 44px;
 }
+.rate-btn:active { transform: scale(0.96); }
 .rate-btn.hard { background: var(--error); }
-.rate-btn.ok { background: var(--blue); }
+.rate-btn.ok { background: var(--accent-start); }
 .rate-btn.easy { background: var(--success); }
-/* Quiz */
+
+/* ═══ QUIZ (ONE AT A TIME) ═══ */
+.quiz-wrap { animation: slideUp 0.4s ease-out; }
+.quiz-progress-bar {
+  width: 100%; height: 6px; background: rgba(255,255,255,0.06);
+  border-radius: 6px; margin-bottom: 20px; overflow: hidden;
+}
+.quiz-progress-fill {
+  height: 100%; background: var(--accent); border-radius: 6px;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.quiz-hearts {
+  display: flex; gap: 4px; justify-content: center; margin-bottom: 16px;
+  font-size: 1.3em;
+}
+.quiz-hearts .heart { transition: transform 0.3s, opacity 0.3s; }
+.quiz-hearts .heart.lost { opacity: 0.2; transform: scale(0.8); }
 .quiz-q {
-  background: var(--card); border-radius: var(--radius); padding: 16px;
-  margin-bottom: 14px; border-left: 4px solid var(--blue);
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px;
+  animation: slideUp 0.4s ease-out;
 }
-.quiz-q .q-num { color: var(--gold); font-weight: 700; font-size: 0.85em; margin-bottom: 6px; }
-.quiz-q .q-text { font-size: 1.05em; margin-bottom: 12px; font-weight: 500; }
-.mcq-opts { display: flex; flex-direction: column; gap: 8px; }
+.q-counter { color: var(--secondary); font-size: 0.8em; margin-bottom: 12px; font-weight: 600; }
+.q-text { font-size: 1.15em; margin-bottom: 20px; font-weight: 600; line-height: 1.5; }
+.mcq-opts { display: flex; flex-direction: column; gap: 10px; }
 .mcq-opt {
-  background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 12px 14px; cursor: pointer; font-size: 1em;
-  transition: all 0.2s; color: var(--text);
+  background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius); padding: 14px 16px; cursor: pointer; font-size: 1em;
+  transition: all 0.2s; color: var(--primary); min-height: 44px;
+  display: flex; align-items: center;
 }
-.mcq-opt:active, .mcq-opt.selected { border-color: var(--blue); background: rgba(74,127,196,0.15); }
-.mcq-opt.correct { border-color: var(--success); background: rgba(76,175,80,0.15); color: var(--success); }
-.mcq-opt.wrong { border-color: var(--error); background: rgba(231,76,60,0.15); color: var(--error); }
+.mcq-opt:active, .mcq-opt.selected {
+  border-color: var(--accent-start); background: rgba(102,126,234,0.1);
+}
+.mcq-opt.correct {
+  border-color: var(--success); background: rgba(16,185,129,0.1);
+  color: var(--success); animation: correctPop 0.4s ease-out;
+}
+.mcq-opt.wrong {
+  border-color: var(--error); background: rgba(239,68,68,0.1);
+  color: var(--error); animation: shake 0.4s ease-out;
+}
 .fill-input {
-  width: 100%; padding: 12px; border-radius: 8px; font-size: 1.05em;
-  background: rgba(255,255,255,0.08); border: 2px solid rgba(255,255,255,0.15);
-  color: var(--text); outline: none;
+  width: 100%; padding: 14px 16px; border-radius: var(--radius); font-size: 1.05em;
+  background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.1);
+  color: var(--primary); outline: none; font-family: var(--font);
+  transition: border-color 0.2s;
 }
-.fill-input:focus { border-color: var(--blue); }
+.fill-input:focus { border-color: var(--accent-start); }
 .fill-input.correct { border-color: var(--success); }
 .fill-input.wrong { border-color: var(--error); }
-.correction { color: var(--success); font-size: 0.9em; margin-top: 6px; display: none; }
+.correction { font-size: 0.9em; margin-top: 8px; display: none; font-weight: 600; }
+.quiz-hint { color: var(--secondary); font-size: 0.8em; margin-top: 6px; }
+
+/* ═══ BUTTONS ═══ */
 .btn-primary {
   width: 100%; padding: 16px; border: none; border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--blue), #3a6fb4);
-  color: white; font-size: 1.1em; font-weight: 700; cursor: pointer;
-  margin-top: 16px; transition: transform 0.1s;
+  background: var(--accent);
+  color: white; font-size: 1.05em; font-weight: 700; cursor: pointer;
+  margin-top: 16px; transition: transform 0.15s, box-shadow 0.2s;
+  font-family: var(--font);
+  box-shadow: 0 4px 20px rgba(102,126,234,0.3);
+  min-height: 52px;
 }
-.btn-primary:active { transform: scale(0.98); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary:active { transform: scale(0.96); }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
 .btn-secondary {
-  width: 100%; padding: 14px; border: 2px solid var(--blue); border-radius: var(--radius);
-  background: transparent; color: var(--blue); font-size: 1em; font-weight: 600;
-  cursor: pointer; margin-top: 10px;
+  width: 100%; padding: 14px; border: 1px solid var(--surface-border);
+  border-radius: var(--radius);
+  background: var(--surface); color: var(--primary); font-size: 0.95em; font-weight: 600;
+  cursor: pointer; margin-top: 10px; transition: transform 0.15s, background 0.2s;
+  font-family: var(--font); min-height: 48px;
 }
-/* Results */
+.btn-secondary:active { transform: scale(0.96); }
+.btn-secondary:hover { background: var(--surface-hover); }
+
+/* ═══ RESULTS ═══ */
 .results-card {
-  background: var(--card); border-radius: var(--radius); padding: 20px;
-  text-align: center; border: 2px solid var(--gold); margin-bottom: 16px;
+  background: var(--surface);
+  border: 1px solid rgba(245,158,11,0.3);
+  border-radius: var(--radius-xl);
+  padding: 32px 24px; text-align: center;
+  margin: 16px 0; animation: slideUp 0.5s ease-out;
 }
-.results-score { font-size: 2.5em; font-weight: 800; color: var(--gold); }
-.results-label { color: var(--text-dim); font-size: 0.9em; margin-top: 4px; }
-.results-details { text-align: left; margin-top: 16px; }
-.results-details p { padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-/* Settings panel */
+.results-score {
+  font-size: 3em; font-weight: 900;
+  background: var(--accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.results-label { color: var(--secondary); font-size: 0.95em; margin-top: 6px; }
+.results-details { text-align: left; margin-top: 20px; }
+.results-details p {
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; justify-content: space-between; font-size: 0.95em;
+}
+
+/* ═══ DONE STATE ═══ */
+.done-card {
+  background: var(--surface); border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl); padding: 48px 24px;
+  text-align: center; margin: 40px 0; animation: slideUp 0.5s ease-out;
+}
+.done-card .done-emoji { font-size: 3.5em; margin-bottom: 16px; }
+.done-card .done-text { font-size: 1.1em; color: var(--secondary); line-height: 1.7; }
+
+/* ═══ STATS TAB ═══ */
+.stat-card {
+  background: var(--surface); border: 1px solid var(--surface-border);
+  border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px;
+  animation: slideUp 0.4s ease-out both;
+}
+.stat-card-title {
+  font-size: 0.7em; text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--secondary); margin-bottom: 12px; font-weight: 600;
+}
+.streak-calendar {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+}
+.streak-day {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.04); border: 2px solid rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65em; color: var(--secondary); font-weight: 600;
+}
+.streak-day.active {
+  background: rgba(16,185,129,0.15); border-color: var(--success); color: var(--success);
+}
+.streak-day.today {
+  border-color: var(--accent-start);
+}
+.stat-big-num {
+  font-size: 2.5em; font-weight: 900; text-align: center;
+  background: var(--accent); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-sub { text-align: center; color: var(--secondary); font-size: 0.85em; margin-top: 4px; }
+.accuracy-ring { display: flex; justify-content: center; padding: 8px 0; }
+.accuracy-ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+.accuracy-ring-fill {
+  fill: none; stroke: var(--success); stroke-width: 8; stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease-out;
+}
+.accuracy-label {
+  font-size: 1.1em; font-weight: 800;
+}
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+}
+
+/* ═══ BOTTOM NAV ═══ */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(8,9,10,0.92);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--surface-border);
+  padding: 6px 0 calc(6px + var(--safe-bottom));
+}
+.bottom-nav-inner {
+  display: flex; max-width: 600px; margin: 0 auto;
+}
+.nav-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 8px 0; cursor: pointer; border: none; background: none;
+  color: var(--secondary); font-size: 0.65em; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  transition: color 0.2s; min-height: 44px;
+  font-family: var(--font);
+}
+.nav-tab .nav-icon { font-size: 1.8em; }
+.nav-tab.active { color: var(--primary); }
+.nav-tab.active .nav-icon { filter: drop-shadow(0 0 8px rgba(102,126,234,0.5)); }
+.nav-tab:active { transform: scale(0.95); }
+.nav-badge {
+  background: var(--error); color: white; font-size: 0.7em;
+  padding: 1px 5px; border-radius: 10px; font-weight: 700;
+  position: relative; top: -2px;
+}
+
+/* ═══ SETTINGS ═══ */
 .settings-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200;
-  display: none; justify-content: center; align-items: flex-end;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  z-index: 200; display: none; justify-content: center; align-items: flex-end;
 }
 .settings-overlay.open { display: flex; }
 .settings-panel {
-  background: var(--card); border-radius: 16px 16px 0 0; padding: 24px 16px calc(16px + var(--safe-bottom));
+  background: #111214; border: 1px solid var(--surface-border);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: 28px 20px calc(20px + var(--safe-bottom));
   width: 100%; max-width: 600px; max-height: 70vh; overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
 }
-.settings-panel h3 { margin-bottom: 16px; }
-.settings-panel button { margin-bottom: 8px; }
-/* Done state */
-.done-card {
-  background: var(--card); border-radius: var(--radius); padding: 40px 20px;
-  text-align: center; margin: 40px 0;
+.settings-panel h3 {
+  margin-bottom: 20px; font-size: 1.2em; font-weight: 700;
+  display: flex; align-items: center; gap: 8px;
 }
-.done-card .done-emoji { font-size: 3em; margin-bottom: 12px; }
-.done-card .done-text { font-size: 1.2em; color: var(--text-dim); }
-/* Animations */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-.fade-in { animation: fadeIn 0.4s ease-out; }
+.settings-panel .drag-handle {
+  width: 36px; height: 4px; background: rgba(255,255,255,0.15);
+  border-radius: 4px; margin: 0 auto 16px;
+}
+
+/* ═══ CONFETTI ═══ */
+.confetti-container {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 300; overflow: hidden;
+}
+.confetti-piece {
+  position: absolute; width: 8px; height: 8px; border-radius: 2px;
+  animation: confettiFall 1.2s ease-out forwards;
+  opacity: 0;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) rotate(720deg) scale(0.3); }
+}
+
+/* ═══ ANIMATIONS ═══ */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes correctPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes correctFlash {
+  0% { background: rgba(16,185,129,0.2); }
+  100% { background: transparent; }
+}
+.flash-correct { animation: correctFlash 0.6s ease-out; }
+.flash-wrong { animation: shake 0.4s ease-out; }
+
+.fade-in { animation: slideUp 0.4s ease-out; }
 .hidden { display: none !important; }
+
+/* Stagger animation delays for cards */
+.card:nth-child(1) { animation-delay: 0s; }
+.card:nth-child(2) { animation-delay: 0.05s; }
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.15s; }
+.card:nth-child(5) { animation-delay: 0.2s; }
+
+/* ═══ REDUCED MOTION ═══ */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 </style>
 </head>
 <body>
 
+<!-- Skeleton Loader -->
+<div class="skeleton-loader" id="skeletonLoader">
+  <div class="skeleton-pulse"></div>
+  <div class="skeleton-pulse"></div>
+  <div class="skeleton-pulse"></div>
+  <div class="skeleton-pulse" style="width:50%;"></div>
+</div>
+
+<!-- Header -->
 <header>
-  <div class="header-top">
-    <div class="header-title"><span class="flag">🇫🇷</span> <span id="headerTopic">French Tutor</span></div>
-    <button class="gear-btn" id="gearBtn">⚙️</button>
-  </div>
-  <div class="header-stats">
-    <span>📅 Jour <span class="stat-val" id="dayNum">1</span></span>
-    <span>🔥 <span class="stat-val" id="streak">0</span></span>
-    <span>📊 <span class="stat-val" id="accuracy">--%</span></span>
+  <div class="header-row">
+    <div class="header-left">
+      <div class="level-badge" id="levelBadge">1</div>
+      <div class="xp-info">
+        <span class="xp-label"><span id="xpText">0 XP</span> · Level <span id="levelNum">1</span></span>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-fill" id="xpBar" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="streak-badge" id="streakBadge">
+        <span class="streak-fire" id="streakFire">🔥</span>
+        <span id="streak">0</span>
+      </div>
+      <button class="icon-btn" id="soundToggle" title="Toggle sound">🔊</button>
+      <button class="icon-btn" id="gearBtn" title="Settings">⚙️</button>
+    </div>
   </div>
 </header>
 
-<main id="mainContent"></main>
+<!-- Main App -->
+<div class="app-container">
+  <!-- Hidden stat elements for header compatibility -->
+  <span id="dayNum" class="hidden">1</span>
+  <span id="accuracy" class="hidden">--%</span>
+  <span id="headerTopic" class="hidden">French Tutor</span>
 
+  <!-- Learn Tab -->
+  <div class="tab-content active" id="tabLearn">
+    <div id="mainContent"></div>
+  </div>
+
+  <!-- Review Tab -->
+  <div class="tab-content" id="tabReview">
+    <div id="reviewContent"></div>
+  </div>
+
+  <!-- Stats Tab -->
+  <div class="tab-content" id="tabStats">
+    <div id="statsContent"></div>
+  </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+  <div class="bottom-nav-inner">
+    <button class="nav-tab active" data-tab="tabLearn">
+      <span class="nav-icon">📖</span>
+      Learn
+    </button>
+    <button class="nav-tab" data-tab="tabReview">
+      <span class="nav-icon">🔄</span>
+      Review
+      <span class="nav-badge hidden" id="reviewBadge">0</span>
+    </button>
+    <button class="nav-tab" data-tab="tabStats">
+      <span class="nav-icon">📊</span>
+      Stats
+    </button>
+  </div>
+</div>
+
+<!-- Settings Overlay -->
 <div class="settings-overlay" id="settingsOverlay">
   <div class="settings-panel">
+    <div class="drag-handle"></div>
     <h3>⚙️ Settings</h3>
     <button class="btn-secondary" id="exportBtn">📤 Export Data (JSON)</button>
     <button class="btn-secondary" id="importBtn">📥 Import Data</button>
     <input type="file" id="importFile" accept=".json" class="hidden">
-    <button class="btn-secondary" id="resetBtn" style="border-color:var(--red);color:var(--red);">🗑️ Reset All Progress</button>
+    <button class="btn-secondary" id="resetBtn" style="border-color:rgba(239,68,68,0.3);color:var(--error);">🗑️ Reset All Progress</button>
     <button class="btn-primary" id="closeSettings" style="margin-top:20px;">Close</button>
   </div>
 </div>
+
+<!-- Confetti Container -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<!-- SVG Gradient Defs -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <linearGradient id="progressGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+</svg>
 
 <script>
 // ═══════════════════════════════════════
@@ -826,47 +1256,44 @@ function getDefaultState() {
 
 function loadState() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch(e) {}
-  return null;
+    const d = localStorage.getItem(STORAGE_KEY);
+    return d ? JSON.parse(d) : null;
+  } catch(e) { return null; }
 }
 
 function saveState(state) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
 }
 
 function initCards(state, topicIndex) {
   const topic = CURRICULUM[topicIndex];
-  if (!topic) return;
+  if (!topic || !topic.cards) return;
   topic.cards.forEach((c, i) => {
-    const id = `${topic.id}_${i}`;
+    const id = topic.id + '_' + i;
     if (!state.cards[id]) {
       state.cards[id] = {
-        id, topic: topic.id, category: topic.category,
-        french: c.fr, english: c.en,
-        easiness: 2.5, interval: 1, repetitions: 0,
-        next_review: addDays(today(), 1),
-        last_score: null, times_correct: 0, times_wrong: 0
+        id, french: c.fr, english: c.en,
+        topic: topic.id, category: topic.category,
+        ease: 2.5, interval: 1, repetitions: 0,
+        next_review: today(), last_score: null,
+        times_correct: 0, times_wrong: 0
       };
     }
   });
 }
 
-// ═══════════════════════════════════════
-// SM-2 ALGORITHM
-// ═══════════════════════════════════════
 function sm2Update(card, score) {
   if (score >= 3) {
+    if (card.repetitions === 0) card.interval = 1;
+    else if (card.repetitions === 1) card.interval = 3;
+    else card.interval = Math.round(card.interval * card.ease);
     card.repetitions++;
-    if (card.repetitions === 1) card.interval = 1;
-    else if (card.repetitions === 2) card.interval = 6;
-    else card.interval = Math.round(card.interval * card.easiness);
-    card.easiness = Math.max(1.3, card.easiness + 0.1 - (5 - score) * (0.08 + (5 - score) * 0.02));
+    card.ease = Math.max(1.3, card.ease + (0.1 - (5 - score) * (0.08 + (5 - score) * 0.02)));
     card.times_correct++;
   } else {
     card.repetitions = 0;
     card.interval = 1;
+    card.ease = Math.max(1.3, card.ease - 0.2);
     card.times_wrong++;
   }
   card.last_score = score;
@@ -877,8 +1304,10 @@ function sm2Update(card, score) {
 // SPEECH (Edge Neural TTS - Henri voice)
 // ═══════════════════════════════════════
 let currentAudio = null;
+let soundEnabled = true;
 
 function speak(text) {
+  if (!soundEnabled) return;
   // Stop any currently playing audio
   if (currentAudio) {
     currentAudio.pause();
@@ -1012,6 +1441,11 @@ let QUIZ_DATA = [];
 let REVIEW_CARDS = [];
 let QUIZ_SUBMITTED = false;
 let TODAY_DONE = false;
+let CURRENT_QUIZ_INDEX = 0;
+let QUIZ_HEARTS = 3;
+let QUIZ_CORRECT = 0;
+let CURRENT_REVIEW_INDEX = 0;
+let ACTIVE_TAB = 'tabLearn';
 
 function init() {
   APP_STATE = loadState() || getDefaultState();
@@ -1035,11 +1469,29 @@ function init() {
   // Get review cards
   REVIEW_CARDS = Object.values(APP_STATE.cards).filter(c => c.next_review <= t && c.last_score !== null);
 
+  // Reset quiz state
+  CURRENT_QUIZ_INDEX = 0;
+  QUIZ_HEARTS = 3;
+  QUIZ_CORRECT = 0;
+  QUIZ_SUBMITTED = false;
+  CURRENT_REVIEW_INDEX = 0;
+
   updateHeader();
   render();
+  renderReviewTab();
+  renderStatsTab();
+  updateReviewBadge();
   setupDelegation();
   saveState(APP_STATE);
+
+  // Hide skeleton
+  setTimeout(() => {
+    $('skeletonLoader').classList.add('hidden');
+  }, 400);
 }
+
+function getXP() { return APP_STATE.total_correct * 10; }
+function getLevel() { return Math.floor(getXP() / 100) + 1; }
 
 function updateHeader() {
   const dayNum = Math.max(1, daysBetween(APP_STATE.first_day, today()) + 1);
@@ -1051,6 +1503,39 @@ function updateHeader() {
   const ti = APP_STATE.current_topic_index;
   const topic = CURRICULUM[Math.min(ti, CURRICULUM.length - 1)];
   $('headerTopic').textContent = `Jour ${dayNum} • ${topic ? topic.name : 'Complete!'}`;
+
+  // XP & Level
+  const xp = getXP();
+  const level = getLevel();
+  const xpInLevel = xp % 100;
+  $('levelBadge').textContent = level;
+  $('levelNum').textContent = level;
+  $('xpText').textContent = xp + ' XP';
+  $('xpBar').style.width = xpInLevel + '%';
+
+  // Streak
+  const streakEl = $('streakBadge');
+  const fireEl = $('streakFire');
+  if (APP_STATE.streak > 0) {
+    fireEl.classList.add('pulse');
+  } else {
+    fireEl.classList.remove('pulse');
+  }
+  if (APP_STATE.streak > 7) {
+    streakEl.classList.add('glow');
+  } else {
+    streakEl.classList.remove('glow');
+  }
+}
+
+function updateReviewBadge() {
+  const badge = $('reviewBadge');
+  if (REVIEW_CARDS.length > 0) {
+    badge.textContent = REVIEW_CARDS.length;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
 }
 
 function render() {
@@ -1069,7 +1554,7 @@ function render() {
     main().innerHTML = `<div class="done-card fade-in">
       <div class="done-emoji">✅</div>
       <div class="done-text">All caught up for today!<br>Come back tomorrow for your next lesson.</div>
-      <p style="color:var(--text-dim);margin-top:12px;font-size:0.9em;">Next: ${ti < CURRICULUM.length ? CURRICULUM[ti].name : 'Reviews'}</p>
+      <p style="color:var(--secondary);margin-top:16px;font-size:0.9em;">Next: ${ti < CURRICULUM.length ? CURRICULUM[ti].name : 'Reviews'}</p>
     </div>`;
     return;
   }
@@ -1080,12 +1565,19 @@ function render() {
   if (!TODAY_DONE && ti < CURRICULUM.length) {
     const topic = CURRICULUM[ti];
     const lesson = topic.positions[pos];
-    html += renderLesson(lesson, topic, pos);
-  }
 
-  // Review section
-  if (REVIEW_CARDS.length > 0) {
-    html += renderReview();
+    // Progress ring
+    html += renderProgressRing(pos);
+
+    // Lesson steps
+    html += renderLessonSteps(pos);
+
+    // Topic name
+    html += `<div style="text-align:center;margin-bottom:8px;">
+      <span style="font-size:0.75em;color:var(--secondary);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">${topic.name}</span>
+    </div>`;
+
+    html += renderLesson(lesson, topic, pos);
   }
 
   // Quiz section
@@ -1094,14 +1586,47 @@ function render() {
   main().innerHTML = html;
 }
 
+function renderProgressRing(pos) {
+  const totalSteps = 3;
+  const completed = pos;
+  const circumference = 2 * Math.PI * 40;
+  const offset = circumference - (completed / totalSteps) * circumference;
+
+  return `<div class="progress-ring-wrap fade-in">
+    <svg class="progress-ring" width="100" height="100" viewBox="0 0 100 100">
+      <circle class="progress-ring-bg" cx="50" cy="50" r="40"/>
+      <circle class="progress-ring-fill" cx="50" cy="50" r="40"
+        stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"/>
+    </svg>
+    <div class="progress-ring-label">
+      <div class="big">${completed}/3</div>
+      <div class="sub">steps</div>
+    </div>
+  </div>`;
+}
+
+function renderLessonSteps(pos) {
+  const labels = ['Intro', 'Deep', 'Practice'];
+  let h = '<div class="lesson-steps fade-in">';
+  for (let i = 0; i < 3; i++) {
+    const cls = i < pos ? 'completed' : i === pos ? 'active' : '';
+    h += `<div class="step ${cls}">${i < pos ? '✓' : (i + 1)}</div>`;
+    if (i < 2) {
+      h += `<div class="step-line ${i < pos ? 'completed' : ''}"></div>`;
+    }
+  }
+  h += '</div>';
+  return h;
+}
+
 function renderLesson(lesson, topic, pos) {
   const posLabels = ['Introduction', 'Deep Dive', 'Practice'];
-  let h = `<div class="section-header fade-in">📖 ${posLabels[pos]}: ${lesson.title}</div>`;
-  h += `<p style="color:var(--text-dim);margin-bottom:16px;" class="fade-in">${lesson.subtitle}</p>`;
+  let h = `<div class="section-title">${posLabels[pos]}</div>`;
+  h += `<div class="section-subtitle">${lesson.subtitle}</div>`;
 
   if (lesson.rules) {
-    lesson.rules.forEach(rule => {
-      h += `<div class="card rule fade-in"><div class="card-label">Rule</div><p style="margin-bottom:8px;">${rule.text}</p>`;
+    lesson.rules.forEach((rule, ri) => {
+      h += `<div class="card rule" style="animation-delay:${ri * 0.05}s"><div class="card-label">Rule</div><p style="margin-bottom:10px;">${rule.text}</p>`;
       if (rule.examples) {
         rule.examples.forEach(ex => {
           h += `<div class="example-row">
@@ -1116,7 +1641,7 @@ function renderLesson(lesson, topic, pos) {
   }
 
   if (lesson.sentences) {
-    h += `<div class="card practice fade-in"><div class="card-label">Example Sentences</div>`;
+    h += `<div class="card practice"><div class="card-label">Example Sentences</div>`;
     lesson.sentences.forEach(s => {
       h += `<div class="example-row">
         <span class="example-fr">${s.fr}</span>
@@ -1128,38 +1653,171 @@ function renderLesson(lesson, topic, pos) {
   }
 
   if (lesson.practice) {
-    h += `<div class="card practice fade-in"><div class="card-label">Quick Practice</div>`;
+    h += `<div class="card practice"><div class="card-label">Quick Practice</div>`;
     lesson.practice.forEach(p => {
-      h += `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);">
-        <p style="font-weight:600;">${p.prompt}</p>
-        <p style="color:var(--text-dim);font-size:0.85em;">Answer: <span class="gold">${p.answer}</span> — ${p.hint}</p>
+      h += `<div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <p style="font-weight:700;font-size:1.05em;">${p.prompt}</p>
+        <p style="color:var(--secondary);font-size:0.85em;margin-top:4px;">Answer: <span class="gold">${p.answer}</span> — ${p.hint}</p>
       </div>`;
     });
     h += `</div>`;
   }
 
   if (lesson.keyRule) {
-    h += `<div class="rule-box fade-in"><div class="rule-title">💡 Key Rule</div><p>${lesson.keyRule}</p></div>`;
+    h += `<div class="rule-box"><div class="rule-title">💡 Key Rule</div><p>${lesson.keyRule}</p></div>`;
   }
 
   return h;
 }
 
-function renderReview() {
-  let h = `<div class="section-header fade-in">🔄 Review (${REVIEW_CARDS.length} cards due)</div>`;
-  REVIEW_CARDS.forEach((card, i) => {
-    h += `<div class="flash-card fade-in" data-fc="${i}">
-      <div class="fc-french">${card.french} <button class="speak-btn" data-text="${card.french.replace(/"/g, '&quot;')}">🔊</button></div>
-      <div class="fc-hint">Tap to reveal</div>
-      <div class="fc-english">${card.english}</div>
-    </div>
-    <div class="rate-btns" data-rate-for="${i}">
-      <button class="rate-btn hard" data-rate="1" data-card-idx="${i}">😟 Hard</button>
-      <button class="rate-btn ok" data-rate="3" data-card-idx="${i}">😐 OK</button>
-      <button class="rate-btn easy" data-rate="5" data-card-idx="${i}">😊 Easy</button>
+function renderReviewTab() {
+  const container = $('reviewContent');
+  if (REVIEW_CARDS.length === 0) {
+    container.innerHTML = `<div class="done-card fade-in">
+      <div class="done-emoji">✨</div>
+      <div class="done-text">No cards to review right now!<br>Keep learning to unlock more.</div>
     </div>`;
-  });
-  return h;
+    return;
+  }
+
+  renderCurrentReviewCard();
+}
+
+function renderCurrentReviewCard() {
+  const container = $('reviewContent');
+  if (CURRENT_REVIEW_INDEX >= REVIEW_CARDS.length) {
+    container.innerHTML = `<div class="done-card fade-in">
+      <div class="done-emoji">🎯</div>
+      <div class="done-text">All review cards done!<br>Great work!</div>
+    </div>`;
+    updateReviewBadge();
+    return;
+  }
+
+  const card = REVIEW_CARDS[CURRENT_REVIEW_INDEX];
+  const remaining = REVIEW_CARDS.length - CURRENT_REVIEW_INDEX;
+
+  let h = `<div style="text-align:center;padding:20px 0 8px;">
+    <span style="font-size:0.75em;color:var(--secondary);text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">
+      ${remaining} card${remaining !== 1 ? 's' : ''} remaining
+    </span>
+  </div>`;
+
+  h += `<div class="fc-counter">${CURRENT_REVIEW_INDEX + 1} / ${REVIEW_CARDS.length}</div>`;
+  h += `<div class="fc-container">
+    <div class="flash-card" data-fc="${CURRENT_REVIEW_INDEX}" style="min-height:180px;">
+      <div class="fc-face">
+        <div class="fc-french">${card.french} <button class="speak-btn" data-text="${card.french.replace(/"/g, '&quot;')}">🔊</button></div>
+        <div class="fc-hint">Tap to reveal</div>
+      </div>
+      <div class="fc-face fc-back">
+        <div class="fc-french" style="font-size:1.2em;margin-bottom:12px;">${card.french}</div>
+        <div class="fc-english">${card.english}</div>
+      </div>
+    </div>
+  </div>
+  <div class="rate-btns" data-rate-for="${CURRENT_REVIEW_INDEX}">
+    <button class="rate-btn hard" data-rate="1" data-card-idx="${CURRENT_REVIEW_INDEX}">😟 Hard</button>
+    <button class="rate-btn ok" data-rate="3" data-card-idx="${CURRENT_REVIEW_INDEX}">😐 OK</button>
+    <button class="rate-btn easy" data-rate="5" data-card-idx="${CURRENT_REVIEW_INDEX}">😊 Easy</button>
+  </div>`;
+
+  container.innerHTML = h;
+}
+
+function renderStatsTab() {
+  const container = $('statsContent');
+  const total = APP_STATE.total_correct + APP_STATE.total_wrong;
+  const accuracy = total > 0 ? Math.round(APP_STATE.total_correct / total * 100) : 0;
+  const xp = getXP();
+  const level = getLevel();
+  const wordsLearned = Object.values(APP_STATE.cards).filter(c => c.last_score !== null && c.last_score >= 3).length;
+  const totalWords = Object.keys(APP_STATE.cards).length;
+  const ti = APP_STATE.current_topic_index;
+  const currentTopic = ti < CURRICULUM.length ? CURRICULUM[ti].name : 'All complete!';
+
+  // Streak calendar (last 7 days)
+  const dayNames = ['S','M','T','W','T','F','S'];
+  let calendarHtml = '<div class="streak-calendar">';
+  for (let i = 6; i >= 0; i--) {
+    const d = addDays(today(), -i);
+    const dayDate = new Date(d);
+    const dayName = dayNames[dayDate.getDay()];
+    const isActive = APP_STATE.lesson_history.some(h => h.date === d);
+    const isToday = d === today();
+    calendarHtml += `<div class="streak-day ${isActive ? 'active' : ''} ${isToday ? 'today' : ''}">
+      <span>${dayName}</span>
+    </div>`;
+  }
+  calendarHtml += '</div>';
+
+  // Accuracy ring
+  const accCirc = 2 * Math.PI * 35;
+  const accOffset = accCirc - (accuracy / 100) * accCirc;
+
+  let h = `
+  <div style="padding-top:16px;">
+    <div class="section-title" style="text-align:center;">Your Progress</div>
+    <div class="section-subtitle" style="text-align:center;">Level ${level} · ${xp} XP</div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:0s">
+    <div class="stat-card-title">🔥 Streak Calendar</div>
+    ${calendarHtml}
+    <div style="text-align:center;margin-top:12px;color:var(--gold);font-weight:700;font-size:1.1em;">
+      ${APP_STATE.streak} day${APP_STATE.streak !== 1 ? 's' : ''} streak
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card" style="animation-delay:0.05s">
+      <div class="stat-card-title">🎯 Accuracy</div>
+      <div class="accuracy-ring">
+        <svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg);">
+          <circle class="accuracy-ring-bg" cx="45" cy="45" r="35"/>
+          <circle class="accuracy-ring-fill" cx="45" cy="45" r="35"
+            stroke-dasharray="${accCirc}" stroke-dashoffset="${accOffset}"/>
+        </svg>
+      </div>
+      <div style="text-align:center;margin-top:-10px;">
+        <span class="accuracy-label">${accuracy}%</span>
+      </div>
+    </div>
+
+    <div class="stat-card" style="animation-delay:0.1s">
+      <div class="stat-card-title">📚 Words</div>
+      <div class="stat-big-num">${wordsLearned}</div>
+      <div class="stat-sub">of ${totalWords} learned</div>
+    </div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:0.15s">
+    <div class="stat-card-title">📖 Current Topic</div>
+    <div style="font-weight:700;font-size:1.1em;margin-top:4px;">${currentTopic}</div>
+    <div style="color:var(--secondary);font-size:0.85em;margin-top:4px;">
+      Position ${APP_STATE.current_position + 1}/3 · ${['Introduction','Deep Dive','Practice'][APP_STATE.current_position]}
+    </div>
+  </div>
+
+  <div class="stat-card" style="animation-delay:0.2s">
+    <div class="stat-card-title">📊 Total Activity</div>
+    <div style="display:flex;justify-content:space-around;margin-top:8px;">
+      <div style="text-align:center;">
+        <div style="font-size:1.5em;font-weight:800;color:var(--success);">${APP_STATE.total_correct}</div>
+        <div style="font-size:0.75em;color:var(--secondary);">Correct</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.5em;font-weight:800;color:var(--error);">${APP_STATE.total_wrong}</div>
+        <div style="font-size:0.75em;color:var(--secondary);">Wrong</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:1.5em;font-weight:800;color:var(--gold);">${APP_STATE.lesson_history.length}</div>
+        <div style="font-size:0.75em;color:var(--secondary);">Lessons</div>
+      </div>
+    </div>
+  </div>`;
+
+  container.innerHTML = h;
 }
 
 function generateQuiz() {
@@ -1167,7 +1825,7 @@ function generateQuiz() {
   const ti = APP_STATE.current_topic_index;
   const topic = ti < CURRICULUM.length ? CURRICULUM[ti] : null;
 
-  // Collect cards for quiz — explicit french/english fields to avoid any confusion
+  // Collect cards for quiz
   let quizCards = [];
   if (topic && Array.isArray(topic.cards)) {
     topic.cards.forEach(function(c, i) {
@@ -1193,15 +1851,11 @@ function generateQuiz() {
     }
   });
 
-  // Filter out any cards missing data
   quizCards = quizCards.filter(function(c) { return c.french && c.english; });
-
-  // Shuffle
   quizCards = quizCards.sort(function() { return Math.random() - 0.5; });
 
   if (quizCards.length === 0) return;
 
-  // Generate 8 questions (mix of types)
   var numQ = Math.min(8, Math.max(5, quizCards.length));
   var types = ['mcq_en2fr', 'fill', 'mcq_fr2en', 'translate'];
 
@@ -1210,7 +1864,6 @@ function generateQuiz() {
     var type = types[i % types.length];
 
     if (type === 'mcq_en2fr') {
-      // MCQ: Show English question → pick the FRENCH answer
       var correctFr = card.french;
       var distractorsFr = [];
       var shuffled = quizCards.slice().sort(function() { return Math.random() - 0.5; });
@@ -1225,7 +1878,6 @@ function generateQuiz() {
         options: optsFr, answer: correctFr, cardId: card.id
       });
     } else if (type === 'mcq_fr2en') {
-      // MCQ: Show French question → pick the ENGLISH answer
       var correctEn = card.english;
       var distractorsEn = [];
       var shuffled2 = quizCards.slice().sort(function() { return Math.random() - 0.5; });
@@ -1240,7 +1892,6 @@ function generateQuiz() {
         options: optsEn, answer: correctEn, cardId: card.id
       });
     } else if (type === 'fill') {
-      // Fill in blank — extract article (first word)
       var parts = card.french.split(' ');
       if (parts.length >= 2) {
         var blank = parts[0];
@@ -1256,7 +1907,6 @@ function generateQuiz() {
         });
       }
     } else {
-      // Translate English → French
       QUIZ_DATA.push({
         type: 'translate', question: 'Translate to French: "' + card.english + '"',
         answer: card.french.toLowerCase(), cardId: card.id
@@ -1269,29 +1919,83 @@ function renderQuiz() {
   generateQuiz();
   if (QUIZ_DATA.length === 0) return '';
 
-  let h = `<div class="section-header fade-in">✏️ Quiz</div>`;
+  CURRENT_QUIZ_INDEX = 0;
+  QUIZ_HEARTS = 3;
+  QUIZ_CORRECT = 0;
+  QUIZ_SUBMITTED = false;
 
-  QUIZ_DATA.forEach((q, i) => {
-    h += `<div class="quiz-q fade-in" data-qi="${i}">
-      <div class="q-num">Question ${i + 1} / ${QUIZ_DATA.length}</div>
+  return renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  if (CURRENT_QUIZ_INDEX >= QUIZ_DATA.length) {
+    return ''; // Should not happen, handled by submitQuizAnswer
+  }
+
+  const q = QUIZ_DATA[CURRENT_QUIZ_INDEX];
+  const i = CURRENT_QUIZ_INDEX;
+  const progress = ((i) / QUIZ_DATA.length) * 100;
+
+  let h = `<div class="quiz-wrap">
+    <div class="section-title" style="margin-top:24px;">✏️ Quiz</div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${progress}%"></div></div>
+    <div class="quiz-hearts">
+      ${[0,1,2].map(hi => `<span class="heart ${hi >= QUIZ_HEARTS ? 'lost' : ''}">❤️</span>`).join('')}
+    </div>
+    <div class="quiz-q" data-qi="${i}">
+      <div class="q-counter">Question ${i + 1} of ${QUIZ_DATA.length}</div>
       <div class="q-text">${q.question}</div>`;
 
-    if (q.type === 'mcq') {
-      h += `<div class="mcq-opts">`;
-      q.options.forEach((opt, oi) => {
-        h += `<div class="mcq-opt" data-qi="${i}" data-oi="${oi}" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</div>`;
-      });
-      h += `</div>`;
-    } else {
-      h += `<input class="fill-input" data-qi="${i}" type="text" placeholder="${q.type === 'fill' ? 'Type the missing word...' : 'Type your answer...'}" autocomplete="off" autocapitalize="none" spellcheck="false">`;
-      if (q.hint) h += `<p style="color:var(--text-dim);font-size:0.8em;margin-top:4px;">Hint: ${q.hint}</p>`;
-    }
-    h += `<div class="correction" data-corr="${i}"></div></div>`;
-  });
+  if (q.type === 'mcq') {
+    h += `<div class="mcq-opts">`;
+    q.options.forEach((opt, oi) => {
+      h += `<div class="mcq-opt" data-qi="${i}" data-oi="${oi}" data-val="${opt.replace(/"/g, '&quot;')}">${opt}</div>`;
+    });
+    h += `</div>`;
+  } else {
+    h += `<input class="fill-input" data-qi="${i}" type="text" placeholder="${q.type === 'fill' ? 'Type the missing word...' : 'Type your answer...'}" autocomplete="off" autocapitalize="none" spellcheck="false">`;
+    if (q.hint) h += `<p class="quiz-hint">Hint: ${q.hint}</p>`;
+  }
+  h += `<div class="correction" data-corr="${i}"></div></div>`;
+  h += `<button class="btn-primary" id="checkAnswer">Check Answer</button>`;
+  h += `</div>`;
 
-  h += `<button class="btn-primary" id="submitQuiz">Submit Quiz</button>`;
   return h;
 }
+
+function spawnConfetti() {
+  const container = $('confettiContainer');
+  const colors = ['#667eea', '#764ba2', '#10b981', '#f59e0b', '#ef4444', '#e879a8'];
+  for (let i = 0; i < 20; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = (30 + Math.random() * 40) + '%';
+    piece.style.top = '50%';
+    piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.animationDelay = (Math.random() * 0.3) + 's';
+    piece.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+    const angle = -60 + Math.random() * 120;
+    const dist = 60 + Math.random() * 80;
+    piece.style.setProperty('--tx', Math.sin(angle * Math.PI / 180) * dist + 'px');
+    piece.style.animation = `confettiFly${i % 2} ${0.8 + Math.random() * 0.6}s ease-out forwards`;
+    container.appendChild(piece);
+    setTimeout(() => piece.remove(), 1500);
+  }
+}
+
+// Add dynamic confetti keyframes
+(function() {
+  const style = document.createElement('style');
+  let css = '';
+  for (let i = 0; i < 2; i++) {
+    css += `@keyframes confettiFly${i} {
+      0% { opacity: 1; transform: translateY(0) translateX(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(-${100 + Math.random() * 60}px) translateX(${(i === 0 ? -1 : 1) * (30 + Math.random() * 50)}px) rotate(${360 + Math.random() * 360}deg) scale(0.2); }
+    }`;
+  }
+  style.textContent = css;
+  document.head.appendChild(style);
+})();
 
 // ═══════════════════════════════════════
 // EVENT HANDLING (delegation)
@@ -1309,7 +2013,7 @@ function setupDelegation() {
       return;
     }
 
-    // Flash card reveal
+    // Flash card reveal (review tab)
     const fc = t.closest('.flash-card');
     if (fc && !fc.classList.contains('revealed')) {
       fc.classList.add('revealed');
@@ -1331,21 +2035,47 @@ function setupDelegation() {
           saveState(APP_STATE);
         }
       }
-      // Visual feedback
-      const parent = t.parentElement;
-      parent.innerHTML = `<span style="color:var(--success);font-weight:600;">✅ Rated! Next review: ${APP_STATE.cards[card.id]?.next_review || 'soon'}</span>`;
+      // Move to next card
+      CURRENT_REVIEW_INDEX++;
+      renderCurrentReviewCard();
       return;
     }
 
     // MCQ options
-    if (t.classList.contains('mcq-opt') && !QUIZ_SUBMITTED) {
+    if (t.classList.contains('mcq-opt') && !t.classList.contains('correct') && !t.classList.contains('wrong')) {
       const qi = t.getAttribute('data-qi');
       document.querySelectorAll(`.mcq-opt[data-qi="${qi}"]`).forEach(o => o.classList.remove('selected'));
       t.classList.add('selected');
       return;
     }
 
-    // Submit quiz
+    // Check answer (one at a time quiz)
+    if (t.id === 'checkAnswer' || t.closest('#checkAnswer')) {
+      checkCurrentAnswer();
+      return;
+    }
+
+    // Continue to next question
+    if (t.id === 'continueQuiz' || t.closest('#continueQuiz')) {
+      CURRENT_QUIZ_INDEX++;
+      if (CURRENT_QUIZ_INDEX >= QUIZ_DATA.length) {
+        finalizeQuiz();
+      } else {
+        // Re-render quiz question in place
+        const quizHtml = renderQuizQuestion();
+        const mainEl = main();
+        // Find and replace quiz section
+        const quizWrap = mainEl.querySelector('.quiz-wrap');
+        if (quizWrap) {
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = quizHtml;
+          quizWrap.replaceWith(tempDiv.firstElementChild);
+        }
+      }
+      return;
+    }
+
+    // Submit quiz (legacy compat)
     if (t.id === 'submitQuiz' || t.closest('#submitQuiz')) {
       submitQuiz();
       return;
@@ -1356,7 +2086,27 @@ function setupDelegation() {
       TODAY_DONE = true;
       REVIEW_CARDS = [];
       render();
+      renderReviewTab();
+      renderStatsTab();
+      updateReviewBadge();
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // Tab navigation
+    const navTab = t.closest('.nav-tab');
+    if (navTab) {
+      const tabId = navTab.getAttribute('data-tab');
+      switchTab(tabId);
+      return;
+    }
+
+    // Sound toggle
+    if (t.id === 'soundToggle' || t.closest('#soundToggle')) {
+      soundEnabled = !soundEnabled;
+      const btn = $('soundToggle');
+      btn.textContent = soundEnabled ? '🔊' : '🔇';
+      btn.classList.toggle('muted', !soundEnabled);
       return;
     }
 
@@ -1414,57 +2164,84 @@ function setupDelegation() {
   });
 }
 
-function submitQuiz() {
-  if (QUIZ_SUBMITTED) return;
+function switchTab(tabId) {
+  ACTIVE_TAB = tabId;
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  $(tabId).classList.add('active');
+  document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
+}
+
+function checkCurrentAnswer() {
+  const i = CURRENT_QUIZ_INDEX;
+  const q = QUIZ_DATA[i];
+  let userAnswer = '';
+  let isCorrect = false;
+  const corrEl = document.querySelector(`[data-corr="${i}"]`);
+
+  if (q.type === 'mcq') {
+    const sel = document.querySelector(`.mcq-opt[data-qi="${i}"].selected`);
+    userAnswer = sel ? sel.getAttribute('data-val') : '';
+    isCorrect = userAnswer === q.answer;
+
+    document.querySelectorAll(`.mcq-opt[data-qi="${i}"]`).forEach(o => {
+      if (o.getAttribute('data-val') === q.answer) o.classList.add('correct');
+      else if (o.classList.contains('selected')) o.classList.add('wrong');
+      o.style.pointerEvents = 'none';
+    });
+  } else {
+    const input = document.querySelector(`.fill-input[data-qi="${i}"]`);
+    userAnswer = input ? input.value.trim().toLowerCase() : '';
+    isCorrect = userAnswer === q.answer.toLowerCase() ||
+                userAnswer.replace(/['']/g, "'") === q.answer.replace(/['']/g, "'").toLowerCase();
+    if (input) {
+      input.classList.add(isCorrect ? 'correct' : 'wrong');
+      input.readOnly = true;
+    }
+  }
+
+  if (isCorrect) {
+    QUIZ_CORRECT++;
+    if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = '✅ Correct!'; corrEl.style.color = 'var(--success)'; }
+    spawnConfetti();
+    const quizQ = document.querySelector('.quiz-q');
+    if (quizQ) quizQ.classList.add('flash-correct');
+  } else {
+    QUIZ_HEARTS = Math.max(0, QUIZ_HEARTS - 1);
+    if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = `❌ Answer: <strong>${q.answer}</strong>`; corrEl.style.color = 'var(--error)'; }
+    const quizQ = document.querySelector('.quiz-q');
+    if (quizQ) quizQ.classList.add('flash-wrong');
+    // Update hearts display
+    document.querySelectorAll('.quiz-hearts .heart').forEach((h, hi) => {
+      if (hi >= QUIZ_HEARTS) h.classList.add('lost');
+    });
+  }
+
+  // Update SRS
+  const score = isCorrect ? 4 : 1;
+  if (q.cardId && APP_STATE.cards[q.cardId]) {
+    sm2Update(APP_STATE.cards[q.cardId], score);
+  }
+  if (isCorrect) APP_STATE.total_correct++;
+  else APP_STATE.total_wrong++;
+  saveState(APP_STATE);
+  updateHeader();
+
+  // Replace check button with continue
+  const btn = $('checkAnswer');
+  if (btn) {
+    const isLast = CURRENT_QUIZ_INDEX >= QUIZ_DATA.length - 1;
+    btn.id = 'continueQuiz';
+    btn.textContent = isLast ? 'See Results' : 'Continue →';
+    btn.style.background = isCorrect ? 'var(--success)' : 'var(--accent)';
+    btn.style.boxShadow = isCorrect ? '0 4px 20px rgba(16,185,129,0.3)' : '0 4px 20px rgba(102,126,234,0.3)';
+  }
+}
+
+function finalizeQuiz() {
   QUIZ_SUBMITTED = true;
-
-  let correct = 0;
+  const correct = QUIZ_CORRECT;
   const total = QUIZ_DATA.length;
-
-  QUIZ_DATA.forEach((q, i) => {
-    let userAnswer = '';
-    let isCorrect = false;
-    const corrEl = document.querySelector(`[data-corr="${i}"]`);
-
-    if (q.type === 'mcq') {
-      const sel = document.querySelector(`.mcq-opt[data-qi="${i}"].selected`);
-      userAnswer = sel ? sel.getAttribute('data-val') : '';
-      isCorrect = userAnswer === q.answer;
-
-      // Highlight correct/wrong
-      document.querySelectorAll(`.mcq-opt[data-qi="${i}"]`).forEach(o => {
-        if (o.getAttribute('data-val') === q.answer) o.classList.add('correct');
-        else if (o.classList.contains('selected')) o.classList.add('wrong');
-      });
-    } else {
-      const input = document.querySelector(`.fill-input[data-qi="${i}"]`);
-      userAnswer = input ? input.value.trim().toLowerCase() : '';
-      isCorrect = userAnswer === q.answer.toLowerCase() ||
-                  userAnswer.replace(/['']/g, "'") === q.answer.replace(/['']/g, "'").toLowerCase();
-      if (input) {
-        input.classList.add(isCorrect ? 'correct' : 'wrong');
-        input.readOnly = true;
-      }
-    }
-
-    if (isCorrect) {
-      correct++;
-      if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = '✅ Correct!'; corrEl.style.color = 'var(--success)'; }
-    } else {
-      if (corrEl) { corrEl.style.display = 'block'; corrEl.innerHTML = `❌ Answer: <strong>${q.answer}</strong>`; corrEl.style.color = 'var(--error)'; }
-    }
-
-    // Update SRS for this card
-    const score = isCorrect ? 4 : 1;
-    if (q.cardId && APP_STATE.cards[q.cardId]) {
-      sm2Update(APP_STATE.cards[q.cardId], score);
-    }
-
-    if (isCorrect) APP_STATE.total_correct++;
-    else APP_STATE.total_wrong++;
-  });
-
-  // Save lesson history
   const pct = Math.round(correct / total * 100);
   const ti = APP_STATE.current_topic_index;
   const topic = ti < CURRICULUM.length ? CURRICULUM[ti] : null;
@@ -1482,7 +2259,6 @@ function submitQuiz() {
     if (APP_STATE.current_position >= 3) {
       APP_STATE.current_position = 0;
       APP_STATE.current_topic_index++;
-      // Init new topic cards
       if (APP_STATE.current_topic_index < CURRICULUM.length) {
         initCards(APP_STATE, APP_STATE.current_topic_index);
       }
@@ -1507,26 +2283,40 @@ function submitQuiz() {
 
   saveState(APP_STATE);
   updateHeader();
+  renderStatsTab();
 
-  // Replace submit button with results
-  const btn = $('submitQuiz');
-  if (btn) btn.remove();
-
+  // Show results
   const resultsHtml = `
-    <div class="results-card fade-in">
-      <div class="results-score">${correct}/${total}</div>
-      <div class="results-label">${pct >= 80 ? 'Excellent ! 🎉' : pct >= 60 ? 'Pas mal ! 👍' : 'Keep practicing! 💪'}</div>
-      <div class="results-details">
-        <p>📊 Score: <span class="gold">${pct}%</span></p>
-        <p>🔥 Streak: <span class="gold">${APP_STATE.streak} day${APP_STATE.streak !== 1 ? 's' : ''}</span></p>
-        ${topic ? `<p>📖 Next: <span class="gold">${APP_STATE.current_topic_index < CURRICULUM.length ? CURRICULUM[APP_STATE.current_topic_index].name + ' — ' + ['Intro','Deep Dive','Practice'][APP_STATE.current_position] : 'Reviews only'}</span></p>` : ''}
-        <p>📅 Come back tomorrow for more!</p>
+    <div class="quiz-wrap">
+      <div class="results-card">
+        <div class="results-score">${correct}/${total}</div>
+        <div class="results-label">${pct >= 80 ? 'Excellent ! 🎉' : pct >= 60 ? 'Pas mal ! 👍' : 'Keep practicing! 💪'}</div>
+        <div class="results-details">
+          <p><span>📊 Score</span> <span class="gold">${pct}%</span></p>
+          <p><span>❤️ Hearts</span> <span>${QUIZ_HEARTS}/3</span></p>
+          <p><span>🔥 Streak</span> <span class="gold">${APP_STATE.streak} day${APP_STATE.streak !== 1 ? 's' : ''}</span></p>
+          <p><span>⭐ XP Earned</span> <span class="gold">+${correct * 10} XP</span></p>
+          ${topic ? `<p><span>📖 Next</span> <span class="gold">${APP_STATE.current_topic_index < CURRICULUM.length ? CURRICULUM[APP_STATE.current_topic_index].name + ' — ' + ['Intro','Deep Dive','Practice'][APP_STATE.current_position] : 'Reviews only'}</span></p>` : ''}
+        </div>
       </div>
-    </div>
-    <button class="btn-primary" id="doneBtn" style="background:linear-gradient(135deg,var(--success),#388e3c);">Done ✅</button>`;
+      <button class="btn-primary" id="doneBtn" style="background:var(--success);box-shadow:0 4px 20px rgba(16,185,129,0.3);">Done ✅</button>
+    </div>`;
 
-  main().insertAdjacentHTML('beforeend', resultsHtml);
+  // Replace quiz area
+  const quizWrap = main().querySelector('.quiz-wrap');
+  if (quizWrap) {
+    quizWrap.outerHTML = resultsHtml;
+  } else {
+    main().insertAdjacentHTML('beforeend', resultsHtml);
+  }
+
   document.querySelector('.results-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Legacy compat
+function submitQuiz() {
+  // Redirect to the new one-at-a-time flow
+  checkCurrentAnswer();
 }
 
 function exportData() {
