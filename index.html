@@ -1450,6 +1450,32 @@ let ACTIVE_TAB = 'tabLearn';
 function init() {
   APP_STATE = loadState() || getDefaultState();
 
+  // Check URL parameters for deep-linking from cron teasers
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramTopic = urlParams.get('t');
+  const paramPos = urlParams.get('p');
+  if (paramTopic !== null && paramPos !== null) {
+    const ti = parseInt(paramTopic, 10);
+    const pi = parseInt(paramPos, 10);
+    if (!isNaN(ti) && !isNaN(pi) && ti >= 0 && ti < CURRICULUM.length && pi >= 0 && pi < 3) {
+      // Only advance forward, never go backward
+      const currentTotal = APP_STATE.current_topic_index * 3 + APP_STATE.current_position;
+      const paramTotal = ti * 3 + pi;
+      if (paramTotal >= currentTotal) {
+        APP_STATE.current_topic_index = ti;
+        APP_STATE.current_position = pi;
+        // Init cards for all topics up to this point
+        for (let i = 0; i <= ti; i++) {
+          initCards(APP_STATE, i);
+        }
+      }
+    }
+    // Clean URL without reloading (remove query params)
+    if (window.history.replaceState) {
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }
+
   // Update streak
   const t = today();
   if (APP_STATE.last_active) {
@@ -1462,9 +1488,12 @@ function init() {
     initCards(APP_STATE, i);
   }
 
+  // When deep-linked from a teaser, don't block with TODAY_DONE
+  const deepLinked = (paramTopic !== null && paramPos !== null);
+
   // Check if already done today
   const todayLessons = APP_STATE.lesson_history.filter(h => h.date === t);
-  TODAY_DONE = todayLessons.length > 0;
+  TODAY_DONE = deepLinked ? false : todayLessons.length > 0;
 
   // Get review cards
   REVIEW_CARDS = Object.values(APP_STATE.cards).filter(c => c.next_review <= t && c.last_score !== null);
