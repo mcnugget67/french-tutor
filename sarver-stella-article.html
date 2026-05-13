@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>How I Built a Chief of Staff on OpenClaw — Ryan Sarver</title>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: #12121a;
+    --bg-card-hover: #1a1a26;
+    --border: rgba(255,255,255,0.06);
+    --border-accent: rgba(245,158,11,0.3);
+    --text: #e4e4e7;
+    --text-muted: #71717a;
+    --text-dim: #52525b;
+    --accent: #f59e0b;
+    --accent-dim: rgba(245,158,11,0.15);
+    --accent-glow: rgba(245,158,11,0.08);
+    --green: #22c55e;
+    --green-dim: rgba(34,197,94,0.15);
+    --blue: #3b82f6;
+    --purple: #a855f7;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    padding: 4rem 1.5rem 3rem;
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 140%;
+    height: 100%;
+    background: radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--border-accent);
+    border-radius: 100px;
+    padding: 0.35rem 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  .hero h1 {
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    max-width: 720px;
+    margin: 0 auto 1.25rem;
+    background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .hero-meta .author {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .hero-meta .dot { opacity: 0.3; }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+  }
+  .stat-val {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  /* ── Hermes Comparison Card ── */
+  .hermes-card {
+    margin: 2rem auto;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+  .hermes-inner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.06) 0%, rgba(34,197,94,0.04) 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 16px;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hermes-inner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--green), var(--accent));
+  }
+  .hermes-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hermes-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .hermes-subtitle {
+    font-size: 0.75rem;
+    color: var(--green);
+    font-weight: 600;
+    margin-top: 0.15rem;
+  }
+  .hermes-chevron {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+  }
+  .hermes-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+  }
+  .hermes-card.open .hermes-body { max-height: 1200px; }
+  .hermes-card.open .hermes-chevron { transform: rotate(180deg); }
+  .hermes-list {
+    list-style: none;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .hermes-list li {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    padding-left: 1.6rem;
+    position: relative;
+    color: var(--text);
+  }
+  .hermes-list li::before {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  .hermes-list li.win::before { content: '🟢'; font-size: 0.7rem; top: 0.15rem; }
+  .hermes-list li.match::before { content: '🟰'; font-size: 0.7rem; top: 0.15rem; }
+  .hermes-list li.learn::before { content: '💡'; font-size: 0.7rem; top: 0.15rem; }
+  .hermes-list li.win { color: var(--green); }
+  .hermes-list li.learn { color: var(--accent); }
+
+  /* ── TOC ── */
+  .toc {
+    margin: 2rem auto;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+  .toc-inner {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+  }
+  .toc-heading {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  .toc-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .toc-list a {
+    display: block;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .toc-list a:hover, .toc-list a:active {
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+  }
+  .toc-list .toc-num {
+    color: var(--accent);
+    font-weight: 600;
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+    opacity: 0.7;
+  }
+
+  /* ── Article sections ── */
+  .article { padding: 1rem 0 3rem; }
+
+  .section {
+    margin: 1.5rem auto;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+  .section-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.75rem 1.5rem;
+    transition: border-color 0.3s;
+  }
+  .section-card:hover {
+    border-color: rgba(255,255,255,0.1);
+  }
+  .section-num {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    opacity: 0.8;
+  }
+  .section-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+  }
+  .section-card p {
+    color: var(--text);
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  .section-card p:last-child { margin-bottom: 0; }
+
+  /* ── Intro ── */
+  .intro {
+    margin: 2rem auto;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+  .intro p {
+    font-size: 1.05rem;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  /* ── Callout / Quote ── */
+  .callout {
+    margin: 1.25rem 0;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+    border-left: 3px solid var(--accent);
+    background: var(--accent-dim);
+    border-radius: 0 10px 10px 0;
+    font-size: 0.95rem;
+    color: #fff;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .callout-green {
+    border-left-color: var(--green);
+    background: var(--green-dim);
+  }
+
+  /* ── Detail lists inside sections ── */
+  .detail-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 0.75rem 0;
+  }
+  .detail-list li {
+    padding-left: 1.25rem;
+    position: relative;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+  .detail-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ── Takeaways ── */
+  .takeaways {
+    margin: 2rem auto 4rem;
+    max-width: 720px;
+    padding: 0 1.25rem;
+  }
+  .takeaways-inner {
+    background: linear-gradient(135deg, rgba(245,158,11,0.08) 0%, rgba(168,85,247,0.06) 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    position: relative;
+  }
+  .takeaways-inner::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+  }
+  .takeaways h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+  .takeaways .sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+  .takeaway-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .takeaway-item:last-child { margin-bottom: 0; }
+  .takeaway-num {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+  .takeaway-item h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.35rem;
+  }
+  .takeaway-item p {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 2rem 1.25rem 3rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+  }
+
+  /* ── Scroll top button ── */
+  .scroll-top {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+    -webkit-tap-highlight-color: transparent;
+    z-index: 50;
+  }
+  .scroll-top.show { opacity: 1; }
+
+  /* ── Utility ── */
+  .highlight { color: var(--accent); font-weight: 600; }
+  .mono {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.85em;
+    background: rgba(255,255,255,0.06);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  @media (min-width: 768px) {
+    .hero { padding: 6rem 2rem 4rem; }
+    .hero-stats { gap: 3rem; }
+    .section-card { padding: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ HERO ════ -->
+<header class="hero">
+  <div class="hero-badge">Long-form article · 15 min read</div>
+  <h1>How I Built a Chief of Staff on OpenClaw That's Better Than Any Human I've Hired</h1>
+  <div class="hero-meta">
+    <span class="author">@rsarver</span>
+    <span class="dot">·</span>
+    <span>Ryan Sarver</span>
+    <span class="dot">·</span>
+    <span>Apr 6, 2026</span>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-val">1.1M</span>
+      <span class="stat-label">Views</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">2.2K</span>
+      <span class="stat-label">Likes</span>
+    </div>
+    <div class="stat">
+      <span class="stat-val">9.1K</span>
+      <span class="stat-label">Bookmarks</span>
+    </div>
+  </div>
+</header>
+
+<!-- ════ HERMES COMPARISON ════ -->
+<div class="hermes-card" id="hermes" onclick="this.classList.toggle('open')">
+  <div class="hermes-inner">
+    <div class="hermes-toggle">
+      <div>
+        <div class="hermes-title">⚡ Your Hermes vs. Stella</div>
+        <div class="hermes-subtitle">You're already ahead — tap to see why</div>
+      </div>
+      <svg class="hermes-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="hermes-body">
+      <ul class="hermes-list">
+        <li class="match">Persistent memory across sessions — both systems ✓</li>
+        <li class="match">Daily cron jobs for briefings & feeds — both systems ✓</li>
+        <li class="match">WhatsApp as primary interface — both systems ✓</li>
+        <li class="match">Markdown files for state — both systems ✓</li>
+        <li class="win">Hermes manages KKW sales reports, automated scraping & multi-platform delivery (WA + Telegram) — Stella does zero business ops</li>
+        <li class="win">Hermes has a skill system for procedural knowledge — Stella uses flat markdown only</li>
+        <li class="win">Hermes has multi-agent delegation (subagents for parallel work) — Stella is single-threaded</li>
+        <li class="win">Hermes has a French tutor with spaced-repetition web app — Stella doesn't do learning</li>
+        <li class="win">Hermes manages reading triage with scoring — Stella does weekly digest only</li>
+        <li class="learn">Stella's Kaizen loop (weekly self-improvement research) — worth adopting in Hermes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ════ TABLE OF CONTENTS ════ -->
+<nav class="toc">
+  <div class="toc-inner">
+    <div class="toc-heading">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#s1"><span class="toc-num">01</span>What Makes a Great Chief of Staff?</a></li>
+      <li><a href="#s2"><span class="toc-num">02</span>Memory — The Foundation</a></li>
+      <li><a href="#s3"><span class="toc-num">03</span>Kaizen — The System Improves Itself</a></li>
+      <li><a href="#s4"><span class="toc-num">04</span>Meeting Prep & Follow-Through</a></li>
+      <li><a href="#s5"><span class="toc-num">05</span>Task & Priority Management</a></li>
+      <li><a href="#s6"><span class="toc-num">06</span>Stakeholder & Relationship Context</a></li>
+      <li><a href="#s7"><span class="toc-num">07</span>Information Filtering</a></li>
+      <li><a href="#s8"><span class="toc-num">08</span>Operational Rhythm</a></li>
+      <li><a href="#s9"><span class="toc-num">09</span>Research & Intelligence</a></li>
+      <li><a href="#s10"><span class="toc-num">10</span>Judgement vs. Predictability</a></li>
+      <li><a href="#s11"><span class="toc-num">11</span>Where This Is Going</a></li>
+      <li><a href="#takeaways"><span class="toc-num">★</span>What Leon Can Learn</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ════ INTRO ════ -->
+<div class="intro">
+  <p>Ryan Sarver is a VC — angel investor, Redpoint Ventures, ex-Twitter platform lead. He's in the middle of a fundraise, sitting on boards, helping portfolio companies. He tried building an AI chief of staff when the first AI APIs came out but couldn't make it work. When <span class="highlight">OpenClaw</span> launched, he went deep. His system <span class="highlight">"Stella"</span> is now more capable than any human chief of staff he's worked with — never forgets commitments, handles small stuff without being asked, flags important stuff without being told, and gets better every week.</p>
+</div>
+
+<!-- ════ ARTICLE BODY ════ -->
+<div class="article">
+
+  <!-- §1 -->
+  <div class="section" id="s1">
+    <div class="section-card">
+      <div class="section-num">Section 01</div>
+      <div class="section-title">What Makes a Great Chief of Staff?</div>
+      <p>Before building anything, Sarver defined what the best human chiefs of staff actually did for him:</p>
+      <ul class="detail-list">
+        <li>Filtered noise so only the right things reached him</li>
+        <li>Made sure he walked into every meeting prepared and nothing fell through after</li>
+        <li>Kept the full picture of what was in flight and flagged slipping items</li>
+        <li>Tracked relationships and knew where things stood with every important person</li>
+        <li>Created daily and weekly rhythm that kept everything moving</li>
+      </ul>
+      <div class="callout">The job isn't about doing the work. It's about making sure the right work happens, nothing falls through, and the principal always has context.</div>
+    </div>
+  </div>
+
+  <!-- §2 -->
+  <div class="section" id="s2">
+    <div class="section-card">
+      <div class="section-num">Section 02</div>
+      <div class="section-title">Memory — The Foundation</div>
+      <p><span class="highlight">"Session memory is a lie."</span> Stella uses two layers of persistent memory:</p>
+      <p><strong>1. Daily notes</strong> — one markdown file per day (<span class="mono">memory/YYYY-MM-DD.md</span>). A raw log of everything: meetings, decisions, tasks, context. Auto-pulled from sessions at end of day.</p>
+      <p><strong>2. Long-term memory</strong> (<span class="mono">MEMORY.md</span>) — curated by Stella herself. Key people, active projects, lessons learned. Synthesized from daily notes and read on startup.</p>
+      <p>All lives in flat markdown files — not a database. You can open, read, edit, and back up to git. No abstraction layer.</p>
+      <div class="callout">Example: Managing a fundraise with 100+ LP contacts across countries. Stella tracks the full pipeline, keeps context on each LP, knows where every relationship stands. For first meetings — researches the fund and recent content, preps with findings and tailored talking points. For ongoing relationships — knows pipeline position, last discussion, key issues raised.</div>
+    </div>
+  </div>
+
+  <!-- §3 -->
+  <div class="section" id="s3">
+    <div class="section-card">
+      <div class="section-num">Section 03</div>
+      <div class="section-title">Kaizen — The System Improves Itself</div>
+      <p>Every Friday a cron job runs research: scans the OpenClaw community, checks new patterns, saves findings to kaizen-research files. Sunday morning: review together, surfaces the top ideas worth trying.</p>
+      <p>Stella also learns from daily interactions. If Sarver keeps correcting something, she captures the pattern and suggests a fix to her own instructions. A human chief of staff can't scan hundreds of builders and cross-reference what they're doing every week.</p>
+      <div class="callout-green callout">Drives continuous refactoring. First versions are always too complicated. A smaller trusted system beats a bigger one you route around.</div>
+    </div>
+  </div>
+
+  <!-- §4 -->
+  <div class="section" id="s4">
+    <div class="section-card">
+      <div class="section-num">Section 04</div>
+      <div class="section-title">Meeting Prep & Follow-Through</div>
+      <p><strong>60 minutes before every external meeting</strong>, a brief arrives via WhatsApp. It pulls prior meeting notes, checks email threads, finds open action items. For LP meetings: pipeline stage, deck version they've seen, their questions, his commitments.</p>
+      <p><strong>Post-meeting:</strong> processes transcripts via the Granola API. Extracts action items and pushes them to Todoist. Commitments by others are tracked in per-person markdown files. If someone owes something for 3 weeks with no update — the system knows.</p>
+      <p>Everything feeds back into memory for next meeting.</p>
+    </div>
+  </div>
+
+  <!-- §5 -->
+  <div class="section" id="s5">
+    <div class="section-card">
+      <div class="section-num">Section 05</div>
+      <div class="section-title">Task & Priority Management</div>
+      <p>A comprehensive picture lives in structured markdown (the source of truth). Important near-term items get synced to Todoist. Chat interface + focused app = better than either alone.</p>
+      <p><strong>Evening task sweep:</strong> what's due, overdue, sitting too long, coming this week. Flags patterns ("this has been rolled forward 5 days"). High-stakes meeting with no prep done? Says so. Nothing needs attention? Silence.</p>
+      <div class="callout">The system earns trust by knowing when to stay quiet. If there's nothing to flag — silence. That's a feature, not a bug.</div>
+    </div>
+  </div>
+
+  <!-- §6 -->
+  <div class="section" id="s6">
+    <div class="section-card">
+      <div class="section-num">Section 06</div>
+      <div class="section-title">Stakeholder & Relationship Context</div>
+      <p>Persistent structured context on every person, company, and project: relationship history, last touchpoint, open commitments, what they care about.</p>
+      <div class="callout">Memory applied to relationships is where this compounds most visibly over time. Every conversation builds on the last. Nothing gets dropped.</div>
+    </div>
+  </div>
+
+  <!-- §7 -->
+  <div class="section" id="s7">
+    <div class="section-card">
+      <div class="section-num">Section 07</div>
+      <div class="section-title">Information Filtering</div>
+      <p>Email and calendar triage across personal and work Gmail. Auto-pulls expense receipts into quarterly tracking. Extracts travel itineraries from booking confirmations. Drafts follow-up emails in his voice.</p>
+      <p>The system turns information chaos into structured, actionable data — without being asked.</p>
+    </div>
+  </div>
+
+  <!-- §8 -->
+  <div class="section" id="s8">
+    <div class="section-card">
+      <div class="section-num">Section 08</div>
+      <div class="section-title">Operational Rhythm</div>
+      <p><strong>Morning brief at 9am</strong>, <strong>evening wrap at 6pm</strong> — both via WhatsApp.</p>
+      <ul class="detail-list">
+        <li><strong>Morning:</strong> top priorities, overdue tasks, calendar, attention items</li>
+        <li><strong>Evening:</strong> what happened, what stalled, prep for tomorrow</li>
+      </ul>
+      <p>If nothing needs to be said — silence. The rhythm is reliable but not noisy.</p>
+    </div>
+  </div>
+
+  <!-- §9 -->
+  <div class="section" id="s9">
+    <div class="section-card">
+      <div class="section-num">Section 09</div>
+      <div class="section-title">Research & Intelligence</div>
+      <p>Weekly curated digest of X accounts and newsletters. Organized into tiers: AI researchers, VCs, founders, operators. Scored by engagement, filtered for relevance.</p>
+      <div class="callout">Turns 45 minutes of scrolling into a few minutes of reading. The signal-to-noise ratio is everything.</div>
+    </div>
+  </div>
+
+  <!-- §10 -->
+  <div class="section" id="s10">
+    <div class="section-card">
+      <div class="section-num">Section 10</div>
+      <div class="section-title">Judgement vs. Predictability</div>
+      <p>The core design rule: <span class="highlight">LLMs handle judgment, scripts handle everything else.</span></p>
+      <ul class="detail-list">
+        <li><strong>Deterministic work</strong> (reading files, calling APIs, sending messages, comparing timestamps) → Python</li>
+        <li><strong>LLM work</strong> → synthesis, prioritization, drafting, reasoning</li>
+      </ul>
+      <div class="callout">Push deterministic work through an LLM and it breaks unpredictably. The line between "needs judgment" and "just needs execution" is the most important architectural decision.</div>
+    </div>
+  </div>
+
+  <!-- §11 -->
+  <div class="section" id="s11">
+    <div class="section-card">
+      <div class="section-num">Section 11</div>
+      <div class="section-title">Where This Is Going</div>
+      <div class="callout" style="font-size: 1.1rem; border-left-width: 4px;">"I didn't get the best assistant I've ever had by asking better questions. I got it by giving the system a better operating model."</div>
+      <p>The insight isn't about prompting. It's about building the right structure — memory, rhythm, tools, judgment boundaries — and letting the system operate within it. The operating model is the product.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════ TAKEAWAYS ════ -->
+<div class="takeaways" id="takeaways">
+  <div class="takeaways-inner">
+    <h2>What Leon Can Learn</h2>
+    <div class="sub">Actionable ideas from Stella to make Hermes even stronger</div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 01</div>
+      <h3>Adopt the Kaizen Loop</h3>
+      <p>Weekly automated research scan of Claude/Anthropic community + builder patterns. Friday scrape → Sunday review. Let Hermes find its own improvements.</p>
+    </div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 02</div>
+      <h3>Self-Correction Capture</h3>
+      <p>When you repeatedly correct Hermes on something, it should detect the pattern and propose a skill/instruction update — not just comply in the moment.</p>
+    </div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 03</div>
+      <h3>Per-Person Commitment Tracking</h3>
+      <p>Structured markdown file per key contact (KKW leaders, partners). Track: last touchpoint, open commitments from them, open commitments to them, relationship notes.</p>
+    </div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 04</div>
+      <h3>Meeting Prep Automation</h3>
+      <p>60-min pre-meeting briefs via WhatsApp. Pull prior notes, open items, relationship context. Especially valuable for recurring 1:1s with KKW leaders.</p>
+    </div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 05</div>
+      <h3>Sharpen the LLM vs. Script Boundary</h3>
+      <p>Audit Hermes for places where deterministic work is being pushed through Claude. Move timestamp comparisons, file operations, API calls to pure Python. Reserve LLM for synthesis and judgment.</p>
+    </div>
+
+    <div class="takeaway-item">
+      <div class="takeaway-num">Takeaway 06</div>
+      <h3>Evening Task Sweep</h3>
+      <p>Daily automated review: what's overdue, what's been sitting too long, what's coming tomorrow. Flag patterns. If nothing needs attention — silence.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FOOTER ════ -->
+<footer class="footer">
+  Built for Leon · Hermes Intelligence System<br>
+  Source: @rsarver on X · Apr 6, 2026
+</footer>
+
+<!-- ════ SCROLL TOP ════ -->
+<button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">↑</button>
+
+<script>
+  // Scroll-to-top visibility
+  var st = document.getElementById('scrollTop');
+  var ticking = false;
+  window.addEventListener('scroll', function() {
+    if (!ticking) {
+      window.requestAnimationFrame(function() {
+        st.classList.toggle('show', window.scrollY > 600);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  });
+
+  // Auto-open hermes card after slight delay
+  setTimeout(function() {
+    document.querySelector('.hermes-card').classList.add('open');
+  }, 800);
+</script>
+
+</body>
+</html>
